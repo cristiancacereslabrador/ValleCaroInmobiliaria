@@ -1,0 +1,18 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title ValleCaro Inmobiliaria| #{pagina}
+    link(rel="stylesheet", href="/css/app.css")
+    block styles
+  body.min-h-screen.bg-purple-200
+    //- if barra 
+    //-   header.bg-purple-600.p-4.position-relative.shadow-xl
+    //-     include header
+
+    main(class="mx-auto container mt-10 px-2")
+      block contenido
+    
+    block scripts

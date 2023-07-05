@@ -1,0 +1,12 @@
+header.bg-purple-600.p-4
+  .container.mx-auto.flex.justify-between.items-center.gap-3
+    a(href="/")
+      h1.text-2xl.text-white.font-extrabold.text-center.shadow-xl ValleCaro &nbsp;
+        span.font-normal Inmobiliaria
+      nav(class="my-5 text-sm md:flex md:items-center md:gap-3 font-bold text-white hidden")
+        a(class="bg-purple-800 shadow-xl hover:bg-purple-500 py-2 px-6 rounded-lg" href="/mis-propiedades") Mis Propiedades
+        //- a(class="bg-purple-800 shadow-xl hover:bg-purple-500 py-2 px-6 rounded-lg" href="") Mi Perfil
+        
+        form(action="/auth/cerrar-sesion" method="POST")
+            input(type="hidden" name="_csrf" value= csrfToken)
+            input(type="submit" class="bg-purple-800 shadow-xl hover:bg-purple-500 py-2 px-6 rounded-lg" value="Cerrar Sesión")
