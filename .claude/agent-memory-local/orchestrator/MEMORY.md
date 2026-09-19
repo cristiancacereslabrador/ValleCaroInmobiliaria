@@ -1,0 +1,3 @@
+- [Incremental progress visibility](feedback_incremental_progress.md) — reportar avance tarea a tarea al delegar checklists largos, no solo al final
+- [MVP + 9 mejoras archivadas](project_real_estate_mvp.md) — proyecto inmobiliario completo (10 changes), estado técnico, gotchas y situación de acceso/red
+- [Acceso sin SSH vía Artifact](feedback_preview_access.md) — cómo mostrar una app del servidor cuando el usuario no quiere SSH ni config de red

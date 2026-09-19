@@ -1,0 +1,83 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MARIADB_DATABASE: ${DB_NAME:-real_estate}
+      MARIADB_USER: ${DB_USER:-real_estate}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-real_estate}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USERNAME: ${DB_USER:-real_estate}
+      DB_PASSWORD: ${DB_PASSWORD:-real_estate}
+      DB_DATABASE: ${DB_NAME:-real_estate}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      BROKER_EMAIL: ${BROKER_EMAIL:-broker@local.test}
+      BROKER_PASSWORD: ${BROKER_PASSWORD:-changeme123}
+      BROKER_NAME: ${BROKER_NAME:-Asesor}
+      BROKER_DEFAULT_NAME: ${BROKER_DEFAULT_NAME:-ValleCaro Inmobiliaria}
+      WEB_BASE_URL: ${WEB_BASE_URL:-http://localhost}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      GOOGLE_MAPS_SERVER_API_KEY: ${GOOGLE_MAPS_SERVER_API_KEY:-}
+      MEDIA_STORAGE_PATH: storage/properties
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_FROM: ${SMTP_FROM:-alertas@localhost}
+    volumes:
+      - media_data:/app/apps/api/storage
+    expose:
+      - "3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost/api/v1}
+        NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  mariadb_data:
+  media_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,21 @@
+node_modules/
+dist/
+coverage/
+
+# Variables de entorno reales (usar .env.example como plantilla)
+.env
+.env.local
+.env.prod
+apps/api/.env
+apps/web/.env
+apps/web/.env.local
+
+# Medios subidos en desarrollo local (design.md - Decision 4)
+apps/api/storage/properties/*
+!apps/api/storage/properties/.gitkeep
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+
+*.log

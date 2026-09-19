@@ -1,0 +1,32 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: real-estate-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MARIADB_DATABASE: ${DB_NAME:-real_estate}
+      MARIADB_USER: ${DB_USER:-real_estate}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-real_estate}
+    ports:
+      # Puerto host 3307 -> evita colisionar con un MariaDB ya instalado en el
+      # host (escuchando en 127.0.0.1:3306). apps/api debe apuntar a este puerto
+      # en desarrollo local (ver apps/api/.env.example).
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mariadb_data:

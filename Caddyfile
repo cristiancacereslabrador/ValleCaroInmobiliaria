@@ -1,0 +1,6 @@
+{$DOMAIN:localhost} {
+	encode gzip
+	reverse_proxy /api/* api:3001
+	reverse_proxy /media/* api:3001
+	reverse_proxy web:3000
+}
