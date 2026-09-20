@@ -74,7 +74,7 @@ a {
   left: 0;
   right: 0;
   background: linear-gradient(180deg, rgba(18, 18, 18, 0.62) 0%, rgba(18, 18, 18, 0) 100%);
-  border-bottom-color: transparent;
+  border-bottom: 0;
   backdrop-filter: none;
 }
 
@@ -95,7 +95,7 @@ a {
 
 .site-header-over-hero.is-solid {
   background: rgba(255, 252, 247, 0.94);
-  border-bottom-color: var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(16px);
 }
 
@@ -1812,6 +1812,10 @@ main.page {
   .detail-gallery {
     margin: 0 0 1.5rem;
     height: auto;
+  }
+
+  .photo-carousel-card .photo-carousel-nav {
+    opacity: 0.92;
   }
 }
 
