@@ -37,4 +37,5 @@ jobs:
             --zone="${ZONE}" \
             --tunnel-through-iap \
             --quiet \
-            --command="curl -fsSL https://raw.githubusercontent.com/cristiancacereslabrador/ValleCaroInmobiliaria/inmob-2026/scripts/vm-deploy.sh -o /tmp/vm-deploy.sh && bash /tmp/vm-deploy.sh"
+            -- \
+            "curl -fsSL https://raw.githubusercontent.com/cristiancacereslabrador/ValleCaroInmobiliaria/inmob-2026/scripts/vm-deploy.sh | bash"
