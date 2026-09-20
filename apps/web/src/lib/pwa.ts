@@ -13,6 +13,21 @@ export function isIosDevice(userAgent = typeof navigator === 'undefined' ? '' : 
   return /iPad|iPhone|iPod/i.test(userAgent);
 }
 
+export function isHandheldDevice(
+  userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent,
+): boolean {
+  if (typeof navigator !== 'undefined') {
+    const uaData = (navigator as Navigator & { userAgentData?: { mobile?: boolean } }).userAgentData;
+    if (uaData?.mobile) return true;
+  }
+  if (/Android.+Mobile|iPhone|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+    return true;
+  }
+  if (/Android|iPad/i.test(userAgent)) return true;
+  const touchPoints = typeof navigator === 'undefined' ? 0 : navigator.maxTouchPoints;
+  return /Macintosh/i.test(userAgent) && touchPoints > 1;
+}
+
 export function chromeIntentUrl(href: string): string | null {
   try {
     const url = new URL(href);

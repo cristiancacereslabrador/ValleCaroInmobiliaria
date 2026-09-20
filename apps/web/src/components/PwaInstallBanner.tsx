@@ -1,7 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { chromeIntentUrl, isInAppBrowser, isIosDevice, isStandaloneDisplay } from '../lib/pwa';
+import {
+  chromeIntentUrl,
+  isHandheldDevice,
+  isInAppBrowser,
+  isIosDevice,
+  isStandaloneDisplay,
+} from '../lib/pwa';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,6 +33,7 @@ export function PwaInstallBanner() {
     }
 
     if (isStandaloneDisplay()) return;
+    if (!isHandheldDevice()) return;
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(DISMISS_KEY)) return;
 
     if (isInAppBrowser()) {
@@ -42,6 +49,7 @@ export function PwaInstallBanner() {
 
     const onPrompt = (event: Event) => {
       event.preventDefault();
+      if (!isHandheldDevice()) return;
       setInstallEvent(event as BeforeInstallPromptEvent);
       setMode('install');
       setVisible(true);
@@ -74,7 +82,7 @@ export function PwaInstallBanner() {
   const showInstall = (mode === 'install' && Boolean(installEvent)) || preview;
 
   return (
-    <div className="pwa-banner" role="status">
+    <div className={`pwa-banner${preview ? ' is-preview' : ''}`} role="status">
       <div className="pwa-banner-copy">
         <span className="pwa-banner-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
