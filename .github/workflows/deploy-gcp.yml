@@ -28,12 +28,21 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
 
       - name: Rebuild app on the VM
+        env:
+          INMOB_ENV_PROD: ${{ secrets.INMOB_ENV_PROD }}
         run: |
           set -euo pipefail
           ZONE="$(gcloud compute instances list \
             --project="${PROJECT_ID}" \
             --filter="name=${VM_NAME}" \
             --format='value(zone.basename())')"
+          printf '%s\n' "${INMOB_ENV_PROD}" > /tmp/inmob.env.prod
+          gcloud compute scp /tmp/inmob.env.prod \
+            "${VM_NAME}:/tmp/inmob.env.prod" \
+            --project="${PROJECT_ID}" \
+            --zone="${ZONE}" \
+            --tunnel-through-iap \
+            --quiet
           gcloud compute scp scripts/vm-deploy.sh \
             "${VM_NAME}:/tmp/vm-deploy.sh" \
             --project="${PROJECT_ID}" \
