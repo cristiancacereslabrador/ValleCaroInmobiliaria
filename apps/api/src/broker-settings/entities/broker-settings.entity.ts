@@ -47,10 +47,10 @@ export class BrokerSettings {
   @Column({ name: 'office_address', type: 'varchar', length: 255, nullable: true })
   officeAddress: string | null;
 
-  @Column({ name: 'primary_color', type: 'varchar', length: 16, default: '#E11D8A' })
+  @Column({ name: 'primary_color', type: 'varchar', length: 16, default: '#BEAF87' })
   primaryColor: string;
 
-  @Column({ name: 'secondary_color', type: 'varchar', length: 16, default: '#6D28D9' })
+  @Column({ name: 'secondary_color', type: 'varchar', length: 16, default: '#121212' })
   secondaryColor: string;
 
   @Column({

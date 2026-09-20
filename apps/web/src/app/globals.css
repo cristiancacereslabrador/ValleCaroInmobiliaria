@@ -1,12 +1,12 @@
 :root {
-  --color-bg: #f3efe6;
-  --color-surface: #fffcf7;
-  --color-border: #e4d9c5;
-  --color-text: #161410;
-  --color-text-muted: #6b6358;
-  --color-primary: #e11d8a;
-  --color-primary-dark: #6d28d9;
-  --color-accent: #b08d57;
+  --color-bg: #eceae4;
+  --color-surface: #f7f6f2;
+  --color-border: #d4d0c6;
+  --color-text: #121212;
+  --color-text-muted: #414042;
+  --color-primary: #beaf87;
+  --color-primary-dark: #121212;
+  --color-accent: #746649;
   --color-danger: #9b2c2c;
   --color-danger-bg: #f8e8e6;
   --radius: 18px;
@@ -84,7 +84,7 @@ a {
   height: 2.1rem;
   border-radius: var(--radius-pill);
   background: var(--color-primary);
-  color: #f7efe0;
+  color: #121212;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -143,12 +143,13 @@ a {
   cursor: pointer;
   text-decoration: none;
   background: var(--color-primary);
-  color: #fff;
-  transition: transform 0.15s ease, background 0.15s ease;
+  color: #121212;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .btn:hover {
   background: var(--color-primary-dark);
+  color: #beaf87;
 }
 
 .btn.btn-secondary {
@@ -1026,8 +1027,8 @@ main.page {
 
 /* White-label VE: chrome, catálogo móvil, panel y leads. */
 .site-footer {
-  background: #121613;
-  color: #d9d2c4;
+  background: #121212;
+  color: #d4d0c6;
   padding: 3rem 1.5rem 6rem;
   font-size: 0.9rem;
 }
@@ -1043,7 +1044,7 @@ main.page {
 .footer-brand {
   margin: 0 0 0.5rem;
   font-size: 1.6rem;
-  color: #f7efe0;
+  color: #beaf87;
 }
 
 .footer-label {
@@ -1231,8 +1232,8 @@ main.page {
   display: flex;
   align-items: flex-end;
   padding: 7rem 1.5rem 3rem;
-  background-color: #1a3c34;
-  background-image: linear-gradient(180deg, rgba(12, 18, 16, 0.15) 0%, rgba(12, 18, 16, 0.72) 100%);
+  background-color: #121212;
+  background-image: linear-gradient(180deg, rgba(18, 18, 18, 0.15) 0%, rgba(18, 18, 18, 0.78) 100%);
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
