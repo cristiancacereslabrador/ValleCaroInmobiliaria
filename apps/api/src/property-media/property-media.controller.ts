@@ -11,6 +11,7 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { PropertyMediaService } from './property-media.service';
+import { MulterExceptionFilter } from './multer-exception.filter';
 
 // Limite "duro" a nivel de multer, previo a la validacion de negocio
 // (configurable por MEDIA_MAX_IMAGE_SIZE_MB/MEDIA_MAX_VIDEO_SIZE_MB) que
@@ -27,6 +29,7 @@ import { PropertyMediaService } from './property-media.service';
 const HARD_UPLOAD_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
 
 @Controller('properties/:propertyId/media')
+@UseFilters(MulterExceptionFilter)
 export class PropertyMediaController {
   constructor(private readonly propertyMediaService: PropertyMediaService) {}
 

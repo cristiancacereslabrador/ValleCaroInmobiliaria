@@ -1,6 +1,7 @@
-import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, INestApplication, UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PropertyValuationEstimatorController } from './property-valuation-estimator.controller';
 import { PropertyValuationEstimatorService } from './property-valuation-estimator.service';
 import { PropertyType } from '../properties/entities/property-type.enum';
@@ -22,7 +23,10 @@ describe('PropertyValuationEstimatorController (integration)', () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [PropertyValuationEstimatorController],
       providers: [{ provide: PropertyValuationEstimatorService, useValue: mockService }],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
@@ -128,6 +132,32 @@ describe('PropertyValuationEstimatorController (integration)', () => {
       .send({ ...validBody, type: 'castle' });
 
     expect(response.status).toBe(400);
+    expect(mockService.estimate).not.toHaveBeenCalled();
+  });
+
+  it('rechaza a un visitante sin sesión de staff', async () => {
+    await app.close();
+    const moduleRef = await Test.createTestingModule({
+      controllers: [PropertyValuationEstimatorController],
+      providers: [{ provide: PropertyValuationEstimatorService, useValue: mockService }],
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({
+        canActivate: () => {
+          throw new UnauthorizedException('Sesión requerida');
+        },
+      })
+      .compile();
+
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    await app.init();
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/property-valuation-estimator/estimate')
+      .send(validBody);
+
+    expect(response.status).toBe(401);
     expect(mockService.estimate).not.toHaveBeenCalled();
   });
 });

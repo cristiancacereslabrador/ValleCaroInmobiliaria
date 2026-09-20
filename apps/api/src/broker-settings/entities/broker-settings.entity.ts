@@ -8,7 +8,7 @@ export class BrokerSettings {
   @PrimaryColumn({ type: 'varchar', length: 36 })
   id: string;
 
-  @Column({ name: 'business_name', type: 'varchar', length: 120, default: 'Mi Inmobiliaria' })
+  @Column({ name: 'business_name', type: 'varchar', length: 120, default: 'Portal de captaciones' })
   businessName: string;
 
   @Column({ type: 'varchar', length: 180, nullable: true })
@@ -47,10 +47,10 @@ export class BrokerSettings {
   @Column({ name: 'office_address', type: 'varchar', length: 255, nullable: true })
   officeAddress: string | null;
 
-  @Column({ name: 'primary_color', type: 'varchar', length: 16, default: '#1f6f5c' })
+  @Column({ name: 'primary_color', type: 'varchar', length: 16, default: '#E11D8A' })
   primaryColor: string;
 
-  @Column({ name: 'secondary_color', type: 'varchar', length: 16, default: '#16543f' })
+  @Column({ name: 'secondary_color', type: 'varchar', length: 16, default: '#6D28D9' })
   secondaryColor: string;
 
   @Column({
@@ -85,6 +85,9 @@ export class BrokerSettings {
 
   @Column({ name: 'about_text', type: 'text', nullable: true })
   aboutText: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  testimonials: string | null;
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;

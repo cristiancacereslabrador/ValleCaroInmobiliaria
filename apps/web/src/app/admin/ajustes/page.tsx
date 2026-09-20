@@ -12,6 +12,16 @@ import {
 import type { BrokerSettings } from '../../../lib/api/types';
 import { ApiError } from '../../../lib/api/client';
 import { resolveMediaUrl } from '../../../lib/config';
+import { parseTestimonials, serializeTestimonials, type Testimonial } from '../../../lib/testimonials';
+import {
+  COLOR_PRESETS,
+  DEFAULT_PRIMARY_COLOR,
+  DEFAULT_SECONDARY_COLOR,
+} from '../../../lib/branding';
+
+function toHexColor(value: string, fallback: string): string {
+  return /^#[0-9a-fA-F]{6}$/.test(value.trim()) ? value.trim() : fallback;
+}
 
 export default function AdminSettingsPage() {
   return (
@@ -79,6 +89,7 @@ function BrokerSettingsForm() {
       businessHours: settings.businessHours || null,
       footerLegal: settings.footerLegal || null,
       aboutText: settings.aboutText || null,
+      testimonials: settings.testimonials || null,
     };
 
     try {
@@ -133,7 +144,7 @@ function BrokerSettingsForm() {
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             <div className="field">
-              <label htmlFor="businessName">Nombre comercial</label>
+              <label htmlFor="businessName">Nombre del portal</label>
               <input
                 id="businessName"
                 type="text"
@@ -141,6 +152,10 @@ function BrokerSettingsForm() {
                 onChange={(event) => setField('businessName', event.target.value)}
                 required
               />
+              <span className="field-hint">
+                Evita la palabra «inmobiliaria» si trabajas bajo una franquicia. Ejemplo: «Portal de
+                captaciones» o tu nombre.
+              </span>
             </div>
             <div className="field">
               <label htmlFor="slogan">Slogan</label>
@@ -165,6 +180,7 @@ function BrokerSettingsForm() {
               <input
                 id="advisorTitle"
                 type="text"
+                placeholder="Asesora · Century 21"
                 value={settings.advisorTitle ?? ''}
                 onChange={(event) => setField('advisorTitle', event.target.value)}
               />
@@ -233,23 +249,65 @@ function BrokerSettingsForm() {
                 onChange={(event) => setField('tiktok', event.target.value)}
               />
             </div>
+            <div className="field" style={{ gridColumn: '1 / -1' }}>
+              <label>Colores de la marca</label>
+              <p className="page-subtitle">
+                La paleta principal es fucsia con morado. También hay variaciones y el verde o el
+                dorado. Se cambian aquí, sin tocar código.
+              </p>
+              <div className="color-presets">
+                {COLOR_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`color-preset${preset.id === 'fucsia' ? ' is-principal' : ''}`}
+                    onClick={() => {
+                      setField('primaryColor', preset.primary);
+                      setField('secondaryColor', preset.secondary);
+                    }}
+                  >
+                    <span className="color-preset-swatches" aria-hidden="true">
+                      <span style={{ background: preset.primary }} />
+                      <span style={{ background: preset.secondary }} />
+                    </span>
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="field">
               <label htmlFor="primaryColor">Color principal</label>
-              <input
-                id="primaryColor"
-                type="text"
-                value={settings.primaryColor}
-                onChange={(event) => setField('primaryColor', event.target.value)}
-              />
+              <div className="color-field">
+                <input
+                  aria-label="Selector de color principal"
+                  type="color"
+                  value={toHexColor(settings.primaryColor, DEFAULT_PRIMARY_COLOR)}
+                  onChange={(event) => setField('primaryColor', event.target.value)}
+                />
+                <input
+                  id="primaryColor"
+                  type="text"
+                  value={settings.primaryColor}
+                  onChange={(event) => setField('primaryColor', event.target.value)}
+                />
+              </div>
             </div>
             <div className="field">
               <label htmlFor="secondaryColor">Color secundario</label>
-              <input
-                id="secondaryColor"
-                type="text"
-                value={settings.secondaryColor}
-                onChange={(event) => setField('secondaryColor', event.target.value)}
-              />
+              <div className="color-field">
+                <input
+                  aria-label="Selector de color secundario"
+                  type="color"
+                  value={toHexColor(settings.secondaryColor, DEFAULT_SECONDARY_COLOR)}
+                  onChange={(event) => setField('secondaryColor', event.target.value)}
+                />
+                <input
+                  id="secondaryColor"
+                  type="text"
+                  value={settings.secondaryColor}
+                  onChange={(event) => setField('secondaryColor', event.target.value)}
+                />
+              </div>
             </div>
             <div className="field">
               <label htmlFor="mapCenterLat">Centro del mapa (lat)</label>
@@ -318,6 +376,10 @@ function BrokerSettingsForm() {
                 onChange={(event) => setField('aboutText', event.target.value)}
               />
             </div>
+            <TestimonialsFields
+              value={settings.testimonials ?? null}
+              onChange={(next) => setField('testimonials', next)}
+            />
           </div>
 
           <div className="form-actions">
@@ -361,4 +423,59 @@ function BrokerSettingsForm() {
       </div>
     </main>
   );
+}
+
+function TestimonialsFields({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (next: string) => void;
+}) {
+  const items = padTestimonials(parseTestimonials(value));
+
+  function update(index: number, field: keyof Testimonial, nextValue: string) {
+    const next = items.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, [field]: nextValue } : item,
+    );
+    onChange(serializeTestimonials(next));
+  }
+
+  return (
+    <div className="field" style={{ gridColumn: '1 / -1' }}>
+      <label>Testimonios (Nosotros)</label>
+      <div className="testimonial-editor">
+        {items.map((item, index) => (
+          <div key={index} className="testimonial-editor-row">
+            <input
+              type="text"
+              placeholder="Cita"
+              value={item.quote}
+              onChange={(event) => update(index, 'quote', event.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Autor"
+              value={item.author}
+              onChange={(event) => update(index, 'author', event.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Zona"
+              value={item.place ?? ''}
+              onChange={(event) => update(index, 'place', event.target.value)}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function padTestimonials(items: Testimonial[]): Testimonial[] {
+  const padded = items.slice(0, 4);
+  while (padded.length < 4) {
+    padded.push({ quote: '', author: '', place: '' });
+  }
+  return padded;
 }

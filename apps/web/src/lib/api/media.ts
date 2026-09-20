@@ -18,13 +18,14 @@ export function uploadMedia(
   propertyId: string,
   file: File,
   mediaType?: 'tour360',
+  onProgress?: (percent: number) => void,
 ): Promise<PropertyMedia> {
   const form = new FormData();
   form.append('file', file);
   if (mediaType) {
     form.append('type', mediaType);
   }
-  return apiUpload<PropertyMedia>(`/properties/${propertyId}/media`, form);
+  return apiUpload<PropertyMedia>(`/properties/${propertyId}/media`, form, { onProgress });
 }
 
 // DELETE /api/v1/properties/:id/media/:mediaId

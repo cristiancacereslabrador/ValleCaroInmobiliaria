@@ -7,9 +7,36 @@ import { PropertyMedia } from './entities/property-media.entity';
 import { MediaType } from './entities/media-type.enum';
 import { MediaStorageService } from './media-storage.service';
 import { PropertiesService } from '../properties/properties.service';
+import { convertHeicToJpeg, isHeicUpload } from './heic-convert.util';
 
-const ALLOWED_PHOTO_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
-const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm'];
+const ALLOWED_PHOTO_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif', '.heics'];
+const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.m4v'];
+const PHOTO_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+  'image/heic-sequence',
+  'image/heif-sequence',
+]);
+const VIDEO_MIME_TYPES = new Set([
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/x-m4v',
+]);
+const MIME_TO_EXTENSION: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/heic': '.heic',
+  'image/heif': '.heif',
+  'video/mp4': '.mp4',
+  'video/webm': '.webm',
+  'video/quicktime': '.mov',
+  'video/x-m4v': '.m4v',
+};
 
 export interface UploadableFile {
   originalname: string;
@@ -52,10 +79,11 @@ export class PropertyMediaService {
   ): Promise<PropertyMedia> {
     await this.propertiesService.findOne(propertyId, { includeUnpublished: true });
 
-    const mediaType = this.resolveMediaType(file, requestedType);
-    this.validateFileSize(mediaType, file.size);
+    const normalizedFile = await this.normalizeUploadFile(file);
+    const mediaType = this.resolveMediaType(normalizedFile, requestedType);
+    this.validateFileSize(mediaType, normalizedFile.size);
 
-    const url = await this.mediaStorageService.saveFile(propertyId, file);
+    const url = await this.mediaStorageService.saveFile(propertyId, normalizedFile);
 
     const [position, photoCount] = await Promise.all([
       this.mediaRepository.count({ where: { propertyId } }),
@@ -157,18 +185,49 @@ export class PropertyMediaService {
 
   /**
    * `requestedType === 'tour360'` (property-virtual-tours - tasks.md 1.2):
-   * un tour virtual es, a efectos de formato, una imagen mas - reutiliza
-   * exactamente `ALLOWED_PHOTO_EXTENSIONS`. Cualquier otro valor de
-   * `requestedType` (incluido undefined) no cambia el comportamiento
-   * existente: el tipo se infiere solo por extension (photo/video), nunca
+   * un tour virtual es, a efectos de formato, una imagen mas. Cualquier otro
+   * valor de `requestedType` (incluido undefined) no cambia el comportamiento
+   * existente: el tipo se infiere por extension o MIME (photo/video), nunca
    * se infiere tour360 automaticamente sin pedirlo explicitamente.
    */
+  private async normalizeUploadFile(file: UploadableFile): Promise<UploadableFile> {
+    if (!isHeicUpload(file)) {
+      return file;
+    }
+
+    try {
+      const jpegBuffer = await convertHeicToJpeg(file.buffer);
+      const baseName = path.parse(file.originalname || 'foto').name || 'foto';
+      return {
+        originalname: `${baseName}.jpg`,
+        mimetype: 'image/jpeg',
+        size: jpegBuffer.length,
+        buffer: jpegBuffer,
+      };
+    } catch {
+      throw new BadRequestException(
+        'No se pudo leer la foto HEIC. En el teléfono, elige «JPG» o comparte la imagen como archivo y vuelve a intentar.',
+      );
+    }
+  }
+
+  private resolveExtension(file: UploadableFile): string {
+    const fromName = path.extname(file.originalname || '').toLowerCase();
+    if (fromName) {
+      return fromName;
+    }
+    return MIME_TO_EXTENSION[(file.mimetype || '').toLowerCase()] ?? '';
+  }
+
   private resolveMediaType(file: UploadableFile, requestedType?: string): MediaType {
-    const extension = path.extname(file.originalname).toLowerCase();
+    const extension = this.resolveExtension(file);
+    const mime = (file.mimetype || '').toLowerCase();
+    const isPhoto = ALLOWED_PHOTO_EXTENSIONS.includes(extension) || PHOTO_MIME_TYPES.has(mime);
+    const isVideo = ALLOWED_VIDEO_EXTENSIONS.includes(extension) || VIDEO_MIME_TYPES.has(mime);
     const normalizedRequestedType = requestedType?.trim().toLowerCase();
 
     if (normalizedRequestedType === MediaType.TOUR_360) {
-      if (!ALLOWED_PHOTO_EXTENSIONS.includes(extension)) {
+      if (!isPhoto) {
         throw new BadRequestException(
           `Formato de archivo no soportado para tour virtual 360: "${
             extension || file.mimetype
@@ -179,11 +238,11 @@ export class PropertyMediaService {
       return MediaType.TOUR_360;
     }
 
-    if (ALLOWED_PHOTO_EXTENSIONS.includes(extension)) {
+    if (isPhoto) {
       return MediaType.PHOTO;
     }
 
-    if (ALLOWED_VIDEO_EXTENSIONS.includes(extension)) {
+    if (isVideo) {
       return MediaType.VIDEO;
     }
 
@@ -199,7 +258,7 @@ export class PropertyMediaService {
     const maxSizeMb = Number(
       type === MediaType.VIDEO
         ? this.configService.get('MEDIA_MAX_VIDEO_SIZE_MB', 100)
-        : this.configService.get('MEDIA_MAX_IMAGE_SIZE_MB', 10),
+        : this.configService.get('MEDIA_MAX_IMAGE_SIZE_MB', 20),
     );
     const maxSizeBytes = maxSizeMb * 1024 * 1024;
 

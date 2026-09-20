@@ -26,6 +26,7 @@ function buildQueryString(filters: PropertyFilters): string {
   if (filters.sortBy) params.set('sortBy', filters.sortBy);
   if (filters.state) params.set('state', filters.state);
   if (filters.municipality) params.set('municipality', filters.municipality);
+  if (filters.urbanization) params.set('urbanization', filters.urbanization);
   if (filters.hasElevator !== undefined) params.set('hasElevator', String(filters.hasElevator));
   if (filters.groundFloor !== undefined) params.set('groundFloor', String(filters.groundFloor));
   if (filters.needsRenovation !== undefined)

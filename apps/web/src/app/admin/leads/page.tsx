@@ -3,10 +3,26 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminGuard } from '../../../components/AdminGuard';
-import { listAdminLeads } from '../../../lib/api/leads';
-import type { PropertyLead } from '../../../lib/api/types';
+import { listAdminLeads, updateLeadStatus } from '../../../lib/api/leads';
+import type { LeadOrigin, LeadStatus, PropertyLead } from '../../../lib/api/types';
 import { ApiError } from '../../../lib/api/client';
 import { propertyTypeLabel } from '../../../lib/format';
+
+const STATUS_OPTIONS: LeadStatus[] = ['nuevo', 'contactado', 'visita', 'cerrado'];
+
+const ORIGIN_LABELS: Record<LeadOrigin, string> = {
+  web: 'Web',
+  whatsapp: 'WhatsApp',
+  valuation: 'Tasación',
+  sell_form: 'Quiero vender',
+};
+
+const INTENT_LABELS: Record<string, string> = {
+  buy: 'Comprar',
+  rent: 'Alquilar',
+  sell: 'Vender',
+  visit: 'Visita',
+};
 
 export default function AdminLeadsPage() {
   return (
@@ -40,6 +56,15 @@ function LeadsInbox() {
     };
   }, []);
 
+  async function handleStatusChange(id: string, status: LeadStatus) {
+    try {
+      const updated = await updateLeadStatus(id, status);
+      setLeads((prev) => prev.map((lead) => (lead.id === id ? { ...lead, ...updated } : lead)));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'No se pudo actualizar el estado.');
+    }
+  }
+
   return (
     <main className="page">
       <div className="page-header">
@@ -58,6 +83,8 @@ function LeadsInbox() {
             <thead>
               <tr>
                 <th>Fecha</th>
+                <th>Origen</th>
+                <th>Estado</th>
                 <th>Propiedad</th>
                 <th>Nombre</th>
                 <th>Contacto</th>
@@ -68,13 +95,44 @@ function LeadsInbox() {
               {leads.map((lead) => {
                 const propertyLabel =
                   lead.property?.title?.trim() ||
-                  (lead.property ? propertyTypeLabel(lead.property.type) : lead.propertyId);
+                  (lead.property ? propertyTypeLabel(lead.property.type) : null);
                 const contact = [lead.email, lead.phone].filter(Boolean).join(' · ') || '—';
                 return (
                   <tr key={lead.id}>
                     <td>{new Date(lead.createdAt).toLocaleString('es-VE')}</td>
                     <td>
-                      <Link href={`/properties/${lead.propertyId}`}>{propertyLabel}</Link>
+                      <span className={`lead-origin lead-origin-${lead.origin}`}>
+                        {ORIGIN_LABELS[lead.origin] ?? lead.origin}
+                      </span>
+                      {lead.intent && (
+                        <span className="lead-intent">{INTENT_LABELS[lead.intent] ?? lead.intent}</span>
+                      )}
+                    </td>
+                    <td>
+                      <select
+                        className={`lead-status lead-status-${lead.status}`}
+                        value={lead.status}
+                        onChange={(event) => handleStatusChange(lead.id, event.target.value as LeadStatus)}
+                        aria-label={`Estado de ${lead.name}`}
+                      >
+                        {STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      {lead.propertyId && propertyLabel ? (
+                        <Link href={`/properties/${lead.propertyId}`}>{propertyLabel}</Link>
+                      ) : (
+                        '—'
+                      )}
+                      {lead.visitAt && (
+                        <div className="lead-visit">
+                          Visita: {new Date(lead.visitAt).toLocaleString('es-VE')}
+                        </div>
+                      )}
                     </td>
                     <td>{lead.name}</td>
                     <td>{contact}</td>

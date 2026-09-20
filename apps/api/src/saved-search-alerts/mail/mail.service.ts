@@ -4,6 +4,7 @@ import * as nodemailer from 'nodemailer';
 
 export interface SendMailOptions {
   to: string;
+  cc?: string;
   subject: string;
   text: string;
   html: string;
@@ -31,16 +32,26 @@ export class MailService {
 
   constructor(private readonly config: ConfigService) {
     const user = this.config.get<string>('SMTP_USER', '');
-    const password = this.config.get<string>('SMTP_PASSWORD', '');
+    const password = this.config.get<string>('SMTP_PASSWORD', '').replace(/\s+/g, '');
+    const host = this.config.get<string>('SMTP_HOST', 'localhost');
+    const port = Number(this.config.get('SMTP_PORT', 1025));
+    const secure = this.config.get<string>('SMTP_SECURE', 'false') === 'true';
 
     this.transporter = nodemailer.createTransport({
-      host: this.config.get<string>('SMTP_HOST', 'localhost'),
-      port: this.config.get<number>('SMTP_PORT', 1025),
-      secure: this.config.get<string>('SMTP_SECURE', 'false') === 'true',
+      host,
+      port,
+      secure,
+      requireTLS: !secure && port === 587,
       auth: user ? { user, pass: password } : undefined,
     });
 
     this.from = this.config.get<string>('SMTP_FROM', 'alertas@real-estate-platform.test');
+
+    if (!password) {
+      this.logger.warn(
+        `SMTP_PASSWORD vacío (${host}:${port}). Los avisos se guardan como lead, pero el email no saldrá.`,
+      );
+    }
   }
 
   async sendMail(options: SendMailOptions): Promise<boolean> {

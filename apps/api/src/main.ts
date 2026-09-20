@@ -11,7 +11,9 @@ function isLocalDevOrigin(origin: string): boolean {
     const url = new URL(origin);
     return (
       (url.protocol === 'http:' || url.protocol === 'https:') &&
-      (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+      (url.hostname === 'localhost' ||
+        url.hostname === '127.0.0.1' ||
+        url.hostname.endsWith('.trycloudflare.com'))
     );
   } catch {
     return false;
@@ -49,5 +51,9 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3001);
+  const httpServer = app.getHttpServer();
+  httpServer.setTimeout(10 * 60 * 1000);
+  httpServer.headersTimeout = 11 * 60 * 1000;
+  httpServer.requestTimeout = 10 * 60 * 1000;
 }
 bootstrap();

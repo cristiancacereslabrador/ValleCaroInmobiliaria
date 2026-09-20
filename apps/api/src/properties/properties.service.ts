@@ -142,6 +142,13 @@ export class PropertiesService {
       });
     }
 
+    if (query.urbanization) {
+      qb.andWhere(
+        '(LOWER(property.urbanization) LIKE :zone OR LOWER(property.parish) LIKE :zone)',
+        { zone: `%${query.urbanization.trim().toLowerCase()}%` },
+      );
+    }
+
     if (query.area !== undefined) {
       // property-geolocation spec, Requirement "Busqueda de propiedades por
       // area dibujada en el mapa": solo puede estar "dentro" de un area una

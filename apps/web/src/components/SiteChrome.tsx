@@ -8,7 +8,10 @@ import { getBrokerSettings } from '../lib/api/brokerSettings';
 import { ApiError } from '../lib/api/client';
 import type { BrokerSettings, BrokerUser } from '../lib/api/types';
 import { resolveMediaUrl } from '../lib/config';
-import { buildWhatsAppLink } from '../lib/format';
+import { buildWhatsAppLink, socialHref, socialLabel } from '../lib/format';
+import { FALLBACK_PORTAL_LEGAL, FALLBACK_PORTAL_NAME, FALLBACK_PORTAL_SLOGAN } from '../lib/branding';
+import { PwaInstallBanner } from './PwaInstallBanner';
+import { WhatsAppCta } from './WhatsAppCta';
 
 function isAdminPath(pathname: string): boolean {
   return pathname === '/admin' || pathname.startsWith('/admin/');
@@ -64,7 +67,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     if (settings.secondaryColor) {
       root.style.setProperty('--color-primary-dark', settings.secondaryColor);
     }
-    const title = settings.businessName?.trim() || 'Inmobiliaria';
+    const title = settings.businessName?.trim() || FALLBACK_PORTAL_NAME;
     document.title = title;
   }, [settings]);
 
@@ -84,11 +87,18 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     setIsLoggingOut(false);
   }
 
-  const businessName = settings?.businessName?.trim() || 'Inmobiliaria';
+  const businessName = settings?.businessName?.trim() || FALLBACK_PORTAL_NAME;
   const showAdminHeader = isAdminPath(pathname) && pathname !== '/admin/login';
   const whatsapp = settings?.whatsapp?.trim() || '';
-  const showWhatsAppFab = false;
+  const isPropertyDetail = /^\/properties\/[^/]+$/.test(pathname);
+  const showWhatsAppFab = Boolean(whatsapp) && !showAdminHeader && !isPropertyDetail;
   const isHome = pathname === '/';
+  const fabMessage =
+    pathname.startsWith('/captacion')
+      ? `Hola, quiero vender o alquilar con ${businessName}.`
+      : pathname.startsWith('/valuation')
+        ? `Hola, quiero tasar un inmueble con ${businessName}.`
+        : `Hola, me interesa una propiedad de ${businessName}.`;
 
   return (
     <>
@@ -148,8 +158,11 @@ export function SiteChrome({ children }: { children: ReactNode }) {
             <Link href="/" className={pathname === '/' ? 'is-active' : undefined}>
               Catálogo
             </Link>
+            <Link href="/captacion" className={pathname.startsWith('/captacion') ? 'is-active' : undefined}>
+              Quiero vender
+            </Link>
             <Link href="/valuation" className={pathname.startsWith('/valuation') ? 'is-active' : undefined}>
-              Estimar valor
+              Solicitar tasación
             </Link>
             <Link href="/nosotros" className={pathname.startsWith('/nosotros') ? 'is-active' : undefined}>
               Nosotros
@@ -163,14 +176,13 @@ export function SiteChrome({ children }: { children: ReactNode }) {
               </Link>
             )}
             {whatsapp && (
-              <a
+              <WhatsAppCta
                 className="btn"
-                href={buildWhatsAppLink(whatsapp, `Hola, escribo a ${businessName}.`)}
-                target="_blank"
-                rel="noreferrer"
+                digits={whatsapp}
+                message={`Hola, escribo a ${businessName}.`}
               >
                 Hablar con un asesor
-              </a>
+              </WhatsAppCta>
             )}
           </nav>
         </header>
@@ -178,12 +190,14 @@ export function SiteChrome({ children }: { children: ReactNode }) {
 
       {children}
 
+      {!showAdminHeader && <PwaInstallBanner />}
+
       {!showAdminHeader && (
         <footer className="site-footer">
           <div className="site-footer-inner">
             <div>
               <p className="footer-brand">{businessName}</p>
-              <p>{settings?.slogan || 'Inmobiliaria en San Cristóbal, Táchira.'}</p>
+              <p>{settings?.slogan || FALLBACK_PORTAL_SLOGAN}</p>
               {settings?.advisorName && (
                 <p>
                   {settings.advisorName}
@@ -208,31 +222,62 @@ export function SiteChrome({ children }: { children: ReactNode }) {
               {settings?.businessHours && <p>{settings.businessHours}</p>}
             </div>
             <div>
+              <p className="footer-label">Sitio</p>
+              <p>
+                <Link href="/">Catálogo</Link>
+              </p>
+              <p>
+                <Link href="/captacion">Quiero vender</Link>
+              </p>
+              <p>
+                <Link href="/valuation">Solicitar tasación</Link>
+              </p>
+              <p>
+                <Link href="/nosotros">Nosotros</Link>
+              </p>
+              <p>
+                <Link href="/contacto">Contacto</Link>
+              </p>
+            </div>
+            <div>
               <p className="footer-label">Cobertura</p>
               <p>{settings?.coverageText || 'San Cristóbal, Táchira, Venezuela'}</p>
-              {settings?.instagram && <p>Instagram {settings.instagram}</p>}
-              {settings?.facebook && <p>Facebook {settings.facebook}</p>}
-              {settings?.tiktok && <p>TikTok {settings.tiktok}</p>}
+              {settings?.instagram && (
+                <p>
+                  <a href={socialHref('instagram', settings.instagram)} target="_blank" rel="noreferrer">
+                    {socialLabel('instagram', settings.instagram)}
+                  </a>
+                </p>
+              )}
+              {settings?.facebook && (
+                <p>
+                  <a href={socialHref('facebook', settings.facebook)} target="_blank" rel="noreferrer">
+                    {socialLabel('facebook', settings.facebook)}
+                  </a>
+                </p>
+              )}
+              {settings?.tiktok && (
+                <p>
+                  <a href={socialHref('tiktok', settings.tiktok)} target="_blank" rel="noreferrer">
+                    {socialLabel('tiktok', settings.tiktok)}
+                  </a>
+                </p>
+              )}
               <p>
                 <Link href="/contacto">Agendar visita</Link>
               </p>
             </div>
           </div>
           <p className="site-footer-legal">
-            {settings?.footerLegal || 'ValleCaro Inmobiliaria · San Cristóbal, Táchira'}
+            {settings?.footerLegal || FALLBACK_PORTAL_LEGAL}
           </p>
         </footer>
       )}
 
       {showWhatsAppFab && (
-        <a
-          className="whatsapp-fab"
-          href={buildWhatsAppLink(whatsapp, `Hola, me interesa una propiedad de ${businessName}.`)}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <WhatsAppCta className="whatsapp-fab" digits={whatsapp} message={fabMessage}>
           WhatsApp
-        </a>
+        </WhatsAppCta>
       )}
     </>
   );

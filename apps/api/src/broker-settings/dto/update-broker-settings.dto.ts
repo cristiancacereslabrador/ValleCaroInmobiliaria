@@ -102,4 +102,9 @@ export class UpdateBrokerSettingsDto {
   @IsOptional()
   @IsString()
   aboutText?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(8000)
+  testimonials?: string;
 }

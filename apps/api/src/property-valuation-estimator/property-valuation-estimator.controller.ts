@@ -1,11 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PropertyValuationEstimatorService } from './property-valuation-estimator.service';
 import { EstimateValuationDto } from './dto/estimate-valuation.dto';
 
 /**
- * specs/property-valuation-estimator/spec.md - tasks.md 2.3:
- * `POST /api/v1/property-valuation-estimator/estimate`. Endpoint sin
- * estado, no persiste nada: solo lee comparables del catalogo existente.
+ * Comparables internos para el staff. El visitante público no recibe un
+ * precio de venta: solicita tasación (lead) y el asesor entrega un informe
+ * después de conocer la propiedad.
  */
 @Controller('property-valuation-estimator')
 export class PropertyValuationEstimatorController {
@@ -14,6 +15,7 @@ export class PropertyValuationEstimatorController {
   ) {}
 
   @Post('estimate')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   estimate(@Body() dto: EstimateValuationDto) {
     return this.propertyValuationEstimatorService.estimate(dto);

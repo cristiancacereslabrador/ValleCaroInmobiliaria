@@ -53,17 +53,17 @@ export default function AdminLoginPage() {
   return (
     <main className="page">
       <div className="page-header">
-        <h1>Acceso del asesor</h1>
+        <h1>Acceso del administrador</h1>
       </div>
       <div className="section">
         <form onSubmit={handleSubmit}>
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-grid">
             <div className="field">
-              <label htmlFor="login-email">Email</label>
+              <label htmlFor="login-email">Usuario</label>
               <input
                 id="login-email"
-                type="email"
+                type="text"
                 autoComplete="username"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}

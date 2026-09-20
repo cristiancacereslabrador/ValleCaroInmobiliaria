@@ -438,6 +438,17 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
           />
         </div>
 
+        <div className="field" style={{ gridColumn: '1 / -1' }}>
+          <label htmlFor="urbanization">Zona (urbanización o barrio)</label>
+          <input
+            id="urbanization"
+            type="text"
+            placeholder="p. ej. Pirineos, La Concordia, Barrio Obrero, Las Lomas"
+            value={form.urbanization}
+            onChange={(event) => setField('urbanization', event.target.value)}
+          />
+        </div>
+
         <div className="field">
           <label htmlFor="state">Estado</label>
           <input
@@ -465,16 +476,6 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
             type="text"
             value={form.parish}
             onChange={(event) => setField('parish', event.target.value)}
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor="urbanization">Urbanización</label>
-          <input
-            id="urbanization"
-            type="text"
-            value={form.urbanization}
-            onChange={(event) => setField('urbanization', event.target.value)}
           />
         </div>
 
@@ -575,8 +576,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
         <div className="section" style={{ marginTop: '1.5rem' }}>
           <h2>Fotos y vídeos</h2>
           <p className="page-subtitle">
-            JPG, PNG, WebP, MP4 o WebM. La primera foto se usa como portada. Marca «tour 360°» solo
-            si la imagen es panorámica.
+            La primera foto se usa como portada. Marca «tour 360°» solo si la imagen es panorámica.
           </p>
           <MediaUploader
             propertyId={propertyId}

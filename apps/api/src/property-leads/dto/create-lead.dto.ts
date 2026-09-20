@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import { IsDateString, IsEmail, IsEnum, IsOptional, IsString, IsUUID, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import { LeadIntent, LeadOrigin } from '../lead.enums';
 
 export class CreateLeadDto {
   @IsString()
@@ -17,7 +18,23 @@ export class CreateLeadDto {
   phone?: string;
 
   @IsString()
-  @MinLength(10)
+  @MinLength(8)
   @MaxLength(1000)
   message: string;
+
+  @IsOptional()
+  @IsUUID()
+  propertyId?: string;
+
+  @IsOptional()
+  @IsEnum(LeadOrigin)
+  origin?: LeadOrigin;
+
+  @IsOptional()
+  @IsEnum(LeadIntent)
+  intent?: LeadIntent;
+
+  @IsOptional()
+  @IsDateString()
+  visitAt?: string;
 }

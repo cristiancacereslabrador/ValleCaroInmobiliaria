@@ -22,6 +22,7 @@ export type UpdateBrokerSettingsInput = {
   businessHours?: string | null;
   footerLegal?: string | null;
   aboutText?: string | null;
+  testimonials?: string | null;
 };
 
 // GET /api/v1/broker-settings (público)

@@ -19,3 +19,6 @@ apps/web/.next/
 apps/web/out/
 
 *.log
+*.tgz
+deploy.tgz
+apps/web/tsconfig.tsbuildinfo

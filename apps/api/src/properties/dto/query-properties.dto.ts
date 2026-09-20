@@ -44,6 +44,11 @@ export class QueryPropertiesDto {
   municipality?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  urbanization?: string;
+
+  @IsOptional()
   @Transform(toBooleanFilter)
   @IsBoolean()
   hasElevator?: boolean;

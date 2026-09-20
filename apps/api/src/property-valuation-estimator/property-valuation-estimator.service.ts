@@ -17,7 +17,7 @@ const SURFACE_TOLERANCE_RATIO = 0.25;
 const BEDROOMS_TOLERANCE = 1;
 
 const ORIENTATIVE_DISCLAIMER =
-  'Estimación orientativa basada en propiedades comparables del propio catálogo. ' +
+  'Estimación orientativa basada en captaciones comparables ya publicadas en este portal. ' +
   'No constituye una tasación oficial ni un informe pericial.';
 
 interface RawComparableRow {

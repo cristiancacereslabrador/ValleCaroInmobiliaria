@@ -123,6 +123,9 @@ export class Property {
   @Column({ name: 'is_furnished', type: 'boolean', nullable: true })
   isFurnished: boolean | null;
 
+  @Column({ name: 'is_semi_furnished', type: 'boolean', nullable: true })
+  isSemiFurnished: boolean | null;
+
   @Column({ name: 'has_air_conditioning', type: 'boolean', nullable: true })
   hasAirConditioning: boolean | null;
 

@@ -159,6 +159,10 @@ export class CreatePropertyDto {
 
   @IsOptional()
   @IsBoolean()
+  isSemiFurnished?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
   hasAirConditioning?: boolean;
 
   @IsOptional()

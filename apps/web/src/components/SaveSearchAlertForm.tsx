@@ -76,9 +76,16 @@ export function SaveSearchAlertForm({ filters }: SaveSearchAlertFormProps) {
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
-        <button type="submit" className="btn" disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando…' : 'Crear alerta'}
-        </button>
+        <div className="filters-bar-actions">
+          <span className="filters-actions-label" aria-hidden="true">
+            Acciones
+          </span>
+          <div className="filters-bar-actions-row">
+            <button type="submit" className="btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando…' : 'Crear alerta'}
+            </button>
+          </div>
+        </div>
       </form>
       {error && <div className="alert alert-error">{error}</div>}
     </div>

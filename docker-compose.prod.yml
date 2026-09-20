@@ -36,14 +36,21 @@ services:
       BROKER_EMAIL: ${BROKER_EMAIL:-broker@local.test}
       BROKER_PASSWORD: ${BROKER_PASSWORD:-changeme123}
       BROKER_NAME: ${BROKER_NAME:-Asesor}
-      BROKER_DEFAULT_NAME: ${BROKER_DEFAULT_NAME:-ValleCaro Inmobiliaria}
+      BROKER_DEFAULT_NAME: ${BROKER_DEFAULT_NAME:-Portal de captaciones}
       WEB_BASE_URL: ${WEB_BASE_URL:-http://localhost}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
       GOOGLE_MAPS_SERVER_API_KEY: ${GOOGLE_MAPS_SERVER_API_KEY:-}
       MEDIA_STORAGE_PATH: storage/properties
+      MEDIA_MAX_IMAGE_SIZE_MB: ${MEDIA_MAX_IMAGE_SIZE_MB:-20}
+      MEDIA_MAX_VIDEO_SIZE_MB: ${MEDIA_MAX_VIDEO_SIZE_MB:-100}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-alertas@localhost}
+      SMTP_NOTIFY_TO: ${SMTP_NOTIFY_TO:-}
+      SMTP_NOTIFY_CC: ${SMTP_NOTIFY_CC:-}
     volumes:
       - media_data:/app/apps/api/storage
     expose:

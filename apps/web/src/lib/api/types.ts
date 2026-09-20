@@ -71,6 +71,7 @@ export interface Property {
   hasSecurity: boolean | null;
   isGatedCommunity: boolean | null;
   isFurnished: boolean | null;
+  isSemiFurnished: boolean | null;
   hasAirConditioning: boolean | null;
   hasPool: boolean | null;
   hasGarden: boolean | null;
@@ -113,6 +114,7 @@ export interface CreatePropertyInput {
   hasSecurity?: boolean;
   isGatedCommunity?: boolean;
   isFurnished?: boolean;
+  isSemiFurnished?: boolean;
   hasAirConditioning?: boolean;
   hasPool?: boolean;
   hasGarden?: boolean;
@@ -136,6 +138,7 @@ export interface PropertyFilters {
   sortBy?: 'newest' | 'price_asc' | 'price_desc';
   state?: string;
   municipality?: string;
+  urbanization?: string;
   hasElevator?: boolean;
   groundFloor?: boolean;
   needsRenovation?: boolean;
@@ -167,6 +170,7 @@ export interface BrokerSettings {
   businessHours: string | null;
   footerLegal: string | null;
   aboutText: string | null;
+  testimonials?: string | null;
 }
 
 export interface BrokerUser {
@@ -175,13 +179,21 @@ export interface BrokerUser {
   name: string;
 }
 
+export type LeadOrigin = 'web' | 'whatsapp' | 'valuation' | 'sell_form';
+export type LeadStatus = 'nuevo' | 'contactado' | 'visita' | 'cerrado';
+export type LeadIntent = 'buy' | 'rent' | 'sell' | 'visit';
+
 export interface PropertyLead {
   id: string;
-  propertyId: string;
+  propertyId: string | null;
   name: string;
   email: string | null;
   phone: string | null;
   message: string;
+  origin: LeadOrigin;
+  status: LeadStatus;
+  intent: LeadIntent | null;
+  visitAt: string | null;
   createdAt: string;
-  property?: Property;
+  property?: Property | null;
 }

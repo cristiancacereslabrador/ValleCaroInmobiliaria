@@ -166,20 +166,22 @@ export default function CatalogPage() {
               </select>
             </label>
             <div className="catalog-view-toggle" role="group" aria-label="Vista del catálogo">
-            <button
-              type="button"
-              className={mobileView === 'list' ? 'btn' : 'btn btn-secondary'}
-              onClick={() => setMobileView('list')}
-            >
-              Lista
-            </button>
-            <button
-              type="button"
-              className={mobileView === 'map' ? 'btn' : 'btn btn-secondary'}
-              onClick={() => setMobileView('map')}
-            >
-              Mapa
-            </button>
+              <div className="catalog-view-toggle-row">
+                <button
+                  type="button"
+                  className={mobileView === 'list' ? 'btn' : 'btn btn-secondary'}
+                  onClick={() => setMobileView('list')}
+                >
+                  Lista
+                </button>
+                <button
+                  type="button"
+                  className={mobileView === 'map' ? 'btn' : 'btn btn-secondary'}
+                  onClick={() => setMobileView('map')}
+                >
+                  Mapa
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -220,6 +222,7 @@ export default function CatalogPage() {
                 <PropertyCard
                   key={property.id}
                   property={property}
+                  whatsapp={settings?.whatsapp}
                   commuteDurationMinutes={
                     isPropertyWithCommute(property)
                       ? Math.round(property.commuteDurationSeconds / 60)
@@ -238,7 +241,7 @@ export default function CatalogPage() {
             active={commuteSearch}
             onSearch={setCommuteSearch}
             onClear={() => setCommuteSearch(null)}
-            isLoading={isLoading}
+            isLoading={Boolean(commuteSearch) && isLoading}
             error={commuteError}
           />
         </details>

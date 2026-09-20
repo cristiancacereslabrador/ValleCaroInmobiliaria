@@ -32,3 +32,14 @@ El sistema SHALL permitir al staff autenticado listar los mensajes recibidos, m�
 #### Scenario: Staff consulta leads
 - **WHEN** un staff autenticado solicita la bandeja
 - **THEN** el sistema devuelve los leads con propiedad, nombre, contacto, mensaje y fecha
+
+### Requirement: Tasación pública sin precio
+La página pública de tasación SHALL recoger tipo de inmueble, contacto y datos opcionales del inmueble, y SHALL NOT mostrar un precio de venta ni de alquiler. El monto lo sugiere el asesor después de conocer la propiedad y entregar un informe; el propietario decide el precio de publicación.
+
+#### Scenario: Visitante solicita tasación
+- **WHEN** un visitante envía tipo de vivienda y un medio de contacto
+- **THEN** el sistema guarda un lead de origen tasación y confirma que un asesor visitará, analizará y entregará un informe
+
+#### Scenario: La página no revela un estimado
+- **WHEN** el visitante completa la solicitud de tasación
+- **THEN** no se muestra rango de precio de venta ni de alquiler

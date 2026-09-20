@@ -12,7 +12,7 @@ El sistema SHALL soportar, como mínimo, los siguientes tipos de inmueble: apart
 - **THEN** el sistema rechaza la operación
 
 ### Requirement: Especificaciones inherentes a la propiedad
-Cada propiedad SHALL poder almacenar: título, descripción, superficie construida (m²), superficie de terreno (m²), habitaciones, baños, puestos de estacionamiento, planta, año de construcción, estado del inmueble, precio en USD, tipo de operación (venta o alquiler), dirección, estado, municipio, parroquia, urbanización, ciudad, código postal opcional, si tiene ascensor, si necesita reforma, y amenidades locales (planta eléctrica, cisterna, pozo de agua, gas directo, vigilancia, conjunto cerrado, amoblado, aire acondicionado, piscina, jardín). El sistema SHALL NOT almacenar certificado energético ni procedencia bancaria.
+Cada propiedad SHALL poder almacenar: título, descripción, superficie construida (m²), superficie de terreno (m²), habitaciones, baños, puestos de estacionamiento, planta, año de construcción, estado del inmueble, precio en USD, tipo de operación (venta o alquiler), dirección, estado, municipio, parroquia, urbanización, ciudad, código postal opcional, si tiene ascensor, si necesita reforma, y amenidades locales (planta eléctrica, tanque de agua, pozo de agua, gas directo, vigilancia, conjunto cerrado, amoblado, semiamoblado, aire acondicionado, piscina, jardín). El sistema SHALL NOT almacenar certificado energético ni procedencia bancaria.
 
 #### Scenario: Registrar ficha venezolana
 - **WHEN** se crea una propiedad con título, precio en USD, apartamento, estacionamiento y parroquia

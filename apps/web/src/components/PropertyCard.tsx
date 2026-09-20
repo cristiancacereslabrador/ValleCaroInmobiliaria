@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { OperationType, type Property } from '../lib/api/types';
 import {
@@ -10,13 +12,16 @@ import {
 } from '../lib/format';
 import { resolveMediaUrl } from '../lib/config';
 import { SaveToListButton } from './SaveToListButton';
+import { WhatsAppCta } from './WhatsAppCta';
 
 export function PropertyCard({
   property,
   commuteDurationMinutes,
+  whatsapp,
 }: {
   property: Property;
   commuteDurationMinutes?: number;
+  whatsapp?: string | null;
 }) {
   const location = formatPropertyLocation(property);
   const heading = property.title?.trim() ? property.title : propertyTypeLabel(property.type);
@@ -30,6 +35,8 @@ export function PropertyCard({
   const highlights = PROPERTY_AMENITY_FIELDS.filter(({ key }) => property[key] === true)
     .slice(0, 2)
     .map(({ label }) => label);
+  const whatsappDigits = whatsapp?.trim() || '';
+  const whatsappText = `Hola, me interesa ${heading} (/properties/${property.id})`;
 
   return (
     <div className="property-card-wrapper">
@@ -67,6 +74,16 @@ export function PropertyCard({
         </div>
       </Link>
       <SaveToListButton propertyId={property.id} className="property-card-save" compact />
+      {whatsappDigits && (
+        <WhatsAppCta
+          digits={whatsappDigits}
+          message={whatsappText}
+          propertyId={property.id}
+          className="property-card-whatsapp"
+        >
+          WhatsApp
+        </WhatsAppCta>
+      )}
     </div>
   );
 }

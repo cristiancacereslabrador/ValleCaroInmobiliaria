@@ -118,15 +118,21 @@ export function CommuteSearchControl({
           />
         </div>
 
-        <button type="submit" className="btn" disabled={isLoading}>
-          {isLoading ? 'Buscando…' : 'Buscar por trayecto'}
-        </button>
-
-        {active && (
-          <button type="button" className="btn btn-secondary" onClick={handleClear}>
-            Quitar filtro de trayecto
-          </button>
-        )}
+        <div className="filters-bar-actions">
+          <span className="filters-actions-label" aria-hidden="true">
+            Acciones
+          </span>
+          <div className="filters-bar-actions-row">
+            <button type="submit" className="btn" disabled={isLoading}>
+              {isLoading ? 'Buscando…' : 'Buscar por trayecto'}
+            </button>
+            {active && (
+              <button type="button" className="btn btn-secondary" onClick={handleClear}>
+                Quitar filtro de trayecto
+              </button>
+            )}
+          </div>
+        </div>
       </form>
 
       {validationError && <div className="alert alert-error">{validationError}</div>}

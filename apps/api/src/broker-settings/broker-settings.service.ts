@@ -22,7 +22,7 @@ export class BrokerSettingsService {
     return this.repo.save(
       this.repo.create({
         id: BROKER_SETTINGS_ID,
-        businessName: this.configService.get<string>('BROKER_DEFAULT_NAME', 'Mi Inmobiliaria'),
+        businessName: this.configService.get<string>('BROKER_DEFAULT_NAME', 'Portal de captaciones'),
         mapCenterLat: String(SAN_CRISTOBAL_CENTER.lat),
         mapCenterLng: String(SAN_CRISTOBAL_CENTER.lng),
         mapZoom: SAN_CRISTOBAL_ZOOM,

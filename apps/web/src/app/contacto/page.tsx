@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { getBrokerSettings } from '../../lib/api/brokerSettings';
 import type { BrokerSettings } from '../../lib/api/types';
-import { buildWhatsAppLink } from '../../lib/format';
+import { FALLBACK_PORTAL_NAME } from '../../lib/branding';
+import { buildWhatsAppLink, socialHref, socialLabel } from '../../lib/format';
 
 export default function ContactPage() {
   const [settings, setSettings] = useState<BrokerSettings | null>(null);
@@ -35,7 +36,7 @@ export default function ContactPage() {
     );
   }
 
-  const name = settings?.businessName?.trim() || 'Inmobiliaria';
+  const name = settings?.businessName?.trim() || FALLBACK_PORTAL_NAME;
   const whatsapp = settings?.whatsapp?.trim() || '';
 
   return (
@@ -85,6 +86,25 @@ export default function ContactPage() {
               <strong>Cobertura</strong>
               <br />
               {settings.coverageText}
+            </p>
+          )}
+          {(settings?.instagram || settings?.facebook) && (
+            <p>
+              <strong>Redes</strong>
+              <br />
+              {settings.instagram && (
+                <>
+                  <a href={socialHref('instagram', settings.instagram)} target="_blank" rel="noreferrer">
+                    {socialLabel('instagram', settings.instagram)}
+                  </a>
+                  {settings.facebook ? <br /> : null}
+                </>
+              )}
+              {settings.facebook && (
+                <a href={socialHref('facebook', settings.facebook)} target="_blank" rel="noreferrer">
+                  {socialLabel('facebook', settings.facebook)}
+                </a>
+              )}
             </p>
           )}
         </div>

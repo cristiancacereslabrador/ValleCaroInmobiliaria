@@ -103,19 +103,62 @@ export async function apiFetch<T>(path: string, options: JsonRequestOptions = {}
   throw lastError;
 }
 
+export interface UploadRequestOptions {
+  onProgress?: (percent: number) => void;
+}
+
+const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000;
+const NETWORK_UPLOAD_ERROR =
+  'Se cortó la conexión al subir. Al volver a esta pantalla se reintenta. Si estás en WhatsApp, ábrelo en el navegador o instala la app.';
+
 /** Subida multipart/form-data (property-media). No fija Content-Type: el navegador añade el boundary. */
-export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
-  const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: 'POST',
-    credentials: 'include',
-    body: form,
+export async function apiUpload<T>(
+  path: string,
+  form: FormData,
+  options: UploadRequestOptions = {},
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${getApiBaseUrl()}${path}`);
+    xhr.withCredentials = true;
+    xhr.timeout = UPLOAD_TIMEOUT_MS;
+    xhr.responseType = 'text';
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && options.onProgress) {
+        options.onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      const contentType = xhr.getResponseHeader('content-type') ?? '';
+      let body: unknown;
+      if (xhr.status !== 204 && contentType.includes('application/json') && xhr.responseText) {
+        try {
+          body = JSON.parse(xhr.responseText);
+        } catch {
+          body = undefined;
+        }
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new ApiError(extractMessage(body, xhr.statusText || NETWORK_UPLOAD_ERROR), xhr.status, body));
+        return;
+      }
+
+      resolve(body as T);
+    };
+
+    xhr.onerror = () => {
+      reject(new Error(NETWORK_UPLOAD_ERROR));
+    };
+    xhr.ontimeout = () => {
+      reject(new Error('La subida tardó demasiado. Prueba con un archivo más liviano o una conexión más estable.'));
+    };
+    xhr.onabort = () => {
+      reject(new Error(NETWORK_UPLOAD_ERROR));
+    };
+
+    xhr.send(form);
   });
-
-  const body = await parseResponseBody(res);
-
-  if (!res.ok) {
-    throw new ApiError(extractMessage(body, res.statusText), res.status, body);
-  }
-
-  return body as T;
 }

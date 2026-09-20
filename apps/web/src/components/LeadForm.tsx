@@ -4,10 +4,18 @@ import { useState, type FormEvent } from 'react';
 import { createLead } from '../lib/api/leads';
 import { ApiError } from '../lib/api/client';
 
+function toIsoOrUndefined(value: string): string | undefined {
+  if (!value.trim()) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString();
+}
+
 export function LeadForm({ propertyId }: { propertyId: string }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [visitAt, setVisitAt] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -33,16 +41,21 @@ export function LeadForm({ propertyId }: { propertyId: string }) {
 
     setIsSubmitting(true);
     try {
+      const visitIso = toIsoOrUndefined(visitAt);
       await createLead(propertyId, {
         name: name.trim(),
         email: email.trim() || undefined,
         phone: phone.trim() || undefined,
         message: message.trim(),
+        origin: 'web',
+        intent: visitIso ? 'visit' : undefined,
+        visitAt: visitIso,
       });
       setSuccess(true);
       setName('');
       setEmail('');
       setPhone('');
+      setVisitAt('');
       setMessage('');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'No se pudo enviar el mensaje.');
@@ -85,6 +98,15 @@ export function LeadForm({ propertyId }: { propertyId: string }) {
             type="tel"
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="lead-visit">Agendar visita</label>
+          <input
+            id="lead-visit"
+            type="datetime-local"
+            value={visitAt}
+            onChange={(event) => setVisitAt(event.target.value)}
           />
         </div>
         <div className="field" style={{ gridColumn: '1 / -1' }}>

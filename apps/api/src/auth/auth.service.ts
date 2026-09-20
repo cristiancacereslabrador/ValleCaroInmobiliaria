@@ -18,22 +18,27 @@ export class AuthService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const count = await this.users.count();
-    if (count > 0) {
+    const login = this.configService.get<string>('BROKER_EMAIL', 'lisecita').trim().toLowerCase();
+    const password = this.configService.get<string>('BROKER_PASSWORD', 'changeme123');
+    const name = this.configService.get<string>('BROKER_NAME', 'Administrador');
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    let user = await this.users.findOne({ where: { email: login } });
+    if (!user) {
+      user = (await this.users.find({ order: { createdAt: 'ASC' }, take: 1 }))[0] ?? null;
+    }
+
+    if (user) {
+      user.email = login;
+      user.name = name;
+      user.passwordHash = passwordHash;
+      await this.users.save(user);
+      this.logger.log(`Usuario staff actualizado: ${login}`);
       return;
     }
 
-    const email = this.configService.get<string>('BROKER_EMAIL', 'broker@local.test').toLowerCase();
-    const password = this.configService.get<string>('BROKER_PASSWORD', 'changeme123');
-    const name = this.configService.get<string>('BROKER_NAME', 'Asesor');
-
-    const user = this.users.create({
-      email,
-      name,
-      passwordHash: await bcrypt.hash(password, 10),
-    });
-    await this.users.save(user);
-    this.logger.log(`Usuario staff inicial creado: ${email}`);
+    await this.users.save(this.users.create({ email: login, name, passwordHash }));
+    this.logger.log(`Usuario staff inicial creado: ${login}`);
   }
 
   async login(email: string, password: string): Promise<{ token: string; user: { id: string; email: string; name: string } }> {

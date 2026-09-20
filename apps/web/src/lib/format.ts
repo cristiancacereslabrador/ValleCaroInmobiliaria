@@ -114,14 +114,52 @@ export function buildWhatsAppLink(whatsappDigits: string, text: string): string 
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
+export function socialHref(network: 'instagram' | 'facebook' | 'tiktok', value: string): string {
+  const trimmed = value.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  const handle = trimmed.replace(/^@/, '');
+  if (network === 'instagram') {
+    return `https://www.instagram.com/${handle}`;
+  }
+  if (network === 'tiktok') {
+    return `https://www.tiktok.com/@${handle}`;
+  }
+  return `https://www.facebook.com/${handle}`;
+}
+
+export function socialLabel(network: 'instagram' | 'facebook' | 'tiktok', value: string): string {
+  const trimmed = value.trim();
+  if (network === 'instagram') {
+    if (/^https?:\/\//i.test(trimmed)) {
+      try {
+        const handle = new URL(trimmed).pathname.split('/').filter(Boolean)[0];
+        return handle ? `Instagram @${handle}` : 'Instagram';
+      } catch {
+        return 'Instagram';
+      }
+    }
+    return `Instagram ${trimmed.startsWith('@') ? trimmed : `@${trimmed}`}`;
+  }
+  if (network === 'tiktok') {
+    if (/^https?:\/\//i.test(trimmed)) {
+      return 'TikTok';
+    }
+    return `TikTok ${trimmed.startsWith('@') ? trimmed : `@${trimmed}`}`;
+  }
+  return 'Facebook';
+}
+
 export const PROPERTY_AMENITY_FIELDS = [
   { key: 'hasPowerPlant', label: 'Planta eléctrica' },
-  { key: 'hasCistern', label: 'Cisterna' },
+  { key: 'hasCistern', label: 'Tanque de agua' },
   { key: 'hasWaterWell', label: 'Pozo de agua' },
   { key: 'hasDirectGas', label: 'Gas directo' },
   { key: 'hasSecurity', label: 'Vigilancia' },
   { key: 'isGatedCommunity', label: 'Conjunto cerrado' },
   { key: 'isFurnished', label: 'Amoblado' },
+  { key: 'isSemiFurnished', label: 'Semiamoblado' },
   { key: 'hasAirConditioning', label: 'Aire acondicionado' },
   { key: 'hasPool', label: 'Piscina' },
   { key: 'hasGarden', label: 'Jardín' },

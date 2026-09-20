@@ -8,6 +8,15 @@ import { PropertyMedia } from './entities/property-media.entity';
 import { MediaType } from './entities/media-type.enum';
 import { MediaStorageService } from './media-storage.service';
 import { PropertiesService } from '../properties/properties.service';
+import { convertHeicToJpeg, isHeicUpload } from './heic-convert.util';
+
+jest.mock('./heic-convert.util', () => ({
+  isHeicUpload: jest.fn(
+    (file: { originalname: string; mimetype: string }) =>
+      /\.hei[cf]s?$/i.test(file.originalname) || /heic|heif/i.test(file.mimetype),
+  ),
+  convertHeicToJpeg: jest.fn(async (buffer: Buffer) => buffer),
+}));
 
 describe('PropertyMediaService', () => {
   let service: PropertyMediaService;
@@ -83,6 +92,33 @@ describe('PropertyMediaService', () => {
       const result = await service.uploadMedia(propertyId, file);
 
       expect(result).toMatchObject({ type: MediaType.VIDEO });
+    });
+
+    it('acepta video MOV de iPhone', async () => {
+      const file = { ...baseImageFile, originalname: 'clip.mov', mimetype: 'video/quicktime' };
+
+      const result = await service.uploadMedia(propertyId, file);
+
+      expect(result).toMatchObject({ type: MediaType.VIDEO });
+    });
+
+    it('convierte HEIC a JPEG antes de guardar', async () => {
+      const jpegBuffer = Buffer.from('jpeg');
+      (isHeicUpload as jest.Mock).mockReturnValueOnce(true);
+      (convertHeicToJpeg as jest.Mock).mockResolvedValueOnce(jpegBuffer);
+      const file = { ...baseImageFile, originalname: 'IMG_1.heic', mimetype: 'image/heic' };
+
+      const result = await service.uploadMedia(propertyId, file);
+
+      expect(result).toMatchObject({ type: MediaType.PHOTO });
+      expect(mediaStorageService.saveFile).toHaveBeenCalledWith(
+        propertyId,
+        expect.objectContaining({
+          originalname: 'IMG_1.jpg',
+          mimetype: 'image/jpeg',
+          buffer: jpegBuffer,
+        }),
+      );
     });
 
     it('rechaza un formato no soportado', async () => {

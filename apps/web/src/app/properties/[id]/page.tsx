@@ -9,7 +9,6 @@ import { getBrokerSettings } from '../../../lib/api/brokerSettings';
 import { ListingStatus, MediaType, type BrokerSettings, type Property, type PropertyMedia } from '../../../lib/api/types';
 import { ApiError } from '../../../lib/api/client';
 import {
-  buildWhatsAppLink,
   formatListingPrice,
   formatNullableNumber,
   formatNullableText,
@@ -31,6 +30,7 @@ import { NearbyServicesSection } from '../../../components/NearbyServicesSection
 import { PriceTrendSection } from '../../../components/PriceTrendSection';
 import { SimilarPropertiesSection } from '../../../components/SimilarPropertiesSection';
 import { LeadForm } from '../../../components/LeadForm';
+import { WhatsAppCta } from '../../../components/WhatsAppCta';
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -317,14 +317,14 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           {isPublished && (
             <>
               {whatsapp && (
-                <a
+                <WhatsAppCta
                   className="btn btn-block"
-                  href={buildWhatsAppLink(whatsapp, whatsappText)}
-                  target="_blank"
-                  rel="noreferrer"
+                  digits={whatsapp}
+                  message={whatsappText}
+                  propertyId={property.id}
                 >
                   WhatsApp con el asesor
-                </a>
+                </WhatsAppCta>
               )}
               <h2>Pide una visita</h2>
               <LeadForm propertyId={property.id} />
@@ -339,9 +339,9 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             <strong>{listingPrice}</strong>
             {pricePerM2 && <span>{pricePerM2}</span>}
           </div>
-          <a className="btn" href={buildWhatsAppLink(whatsapp, whatsappText)} target="_blank" rel="noreferrer">
+          <WhatsAppCta className="btn" digits={whatsapp} message={whatsappText} propertyId={property.id}>
             WhatsApp
-          </a>
+          </WhatsAppCta>
         </div>
       )}
     </main>

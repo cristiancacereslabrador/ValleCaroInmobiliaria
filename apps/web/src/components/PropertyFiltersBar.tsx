@@ -180,21 +180,42 @@ export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProp
         />
       </div>
 
+      <div className="field">
+        <label htmlFor="filter-urbanization">Zona</label>
+        <input
+          id="filter-urbanization"
+          type="text"
+          placeholder="Urbanización o barrio"
+          value={filters.urbanization ?? ''}
+          onChange={(event) =>
+            onChange({
+              ...filters,
+              urbanization: event.target.value.trim() === '' ? undefined : event.target.value,
+            })
+          }
+        />
+      </div>
+
       <div className="filters-bar-actions">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setShowAdvanced((open) => !open)}
-        >
-          {showAdvanced ? 'Menos filtros' : 'Más filtros'}
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={() => onChange({ area: filters.area })}
-        >
-          Limpiar
-        </button>
+        <span className="filters-actions-label" aria-hidden="true">
+          Acciones
+        </span>
+        <div className="filters-bar-actions-row">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setShowAdvanced((open) => !open)}
+          >
+            {showAdvanced ? 'Menos filtros' : 'Más filtros'}
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => onChange({ area: filters.area })}
+          >
+            Limpiar
+          </button>
+        </div>
       </div>
 
       {showAdvanced && (

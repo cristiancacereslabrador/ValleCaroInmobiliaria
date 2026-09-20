@@ -8,24 +8,24 @@ const ASSETS = process.env.ASSETS_DIR
   || 'C:\\Users\\crist\\.cursor\\projects\\c-Users-crist-OneDrive-Documentos-INMOB2026\\assets';
 
 const BROKER = {
-  businessName: 'ValleCaro Inmobiliaria',
-  slogan: 'Casas, quintas y locales con alma tachirense.',
-  advisorName: 'Carolina Valle',
-  advisorTitle: 'Asesora inmobiliaria',
-  whatsapp: '584247001122',
-  phone: '+58 424-700-1122',
-  email: 'hola@vallecaro.test',
-  instagram: '@vallecaro',
-  facebook: 'ValleCaro Inmobiliaria',
-  officeAddress: 'Av. Libertador, Edif. Centro Financiero, Piso 6, San Cristóbal, Táchira',
+  businessName: 'Portal de captaciones',
+  slogan: 'Captaciones en San Cristóbal y el Táchira.',
+  advisorName: 'Liseth Carolina Valladares Gutiérrez',
+  advisorTitle: 'Asesora · Century 21',
+  whatsapp: '584247255817',
+  phone: '+58 424-7255817',
+  email: 'liseht87@gmail.com',
+  instagram: '@c21_lisethvalladares',
+  facebook: 'https://www.facebook.com/share/1EddJksTZ6/',
+  officeAddress: 'San Cristóbal, Táchira',
   coverageText: 'San Cristóbal, Táchira y municipios vecinos',
   businessHours: 'Lun–Vie 8:00–18:00 · Sáb 9:00–13:00',
-  footerLegal: 'ValleCaro Inmobiliaria. Catálogo de demostración: los inmuebles son de muestra.',
-  primaryColor: '#1a3c34',
-  secondaryColor: '#0f2923',
+  footerLegal: 'Liseth Valladares · Portal de captaciones · San Cristóbal, Táchira',
+  primaryColor: '#E11D8A',
+  secondaryColor: '#6D28D9',
   aboutText:
-    'ValleCaro nació en San Cristóbal para acompañar a familias y empresas que buscan un inmueble con criterio, no un anuncio genérico. Conocemos La Concordia, Pirineos, Pueblo Nuevo y la zona industrial porque las recorremos cada semana.\n\n' +
-    'Trabajamos venta y alquiler de apartamentos, quintas, locales y fincas, con fotos reales, datos completos y respuesta directa por WhatsApp. Te decimos con claridad qué tiene planta eléctrica, cisterna o conjunto cerrado — lo que en el Táchira marca la diferencia.',
+    'Liseth Carolina Valladares Gutiérrez asesora compra, venta y alquiler en San Cristóbal y el Táchira, con atención directa por WhatsApp, Instagram y Facebook. Recorre La Concordia, Pirineos, Pueblo Nuevo y la zona industrial cada semana, con el criterio de quien vive la ciudad y no solo publica anuncios.\n\n' +
+    'Trabajamos apartamentos, quintas, locales y fincas con fotos reales y datos completos: planta eléctrica, tanque de agua, conjunto cerrado y lo que en esta región marca la diferencia.',
 };
 
 const COPY = {
@@ -37,7 +37,7 @@ const COPY = {
   house: {
     title: 'Casa familiar con jardín y dos puestos en Pueblo Nuevo',
     description:
-      'Casa de 180 m² construidos sobre 320 m² de terreno, con cuatro habitaciones, tres baños y jardín. Cocina amplia abierta al patio, cisterna y gas directo: pensada para el día a día tachirense.\n\nPueblo Nuevo es residencial, cercano al centro y con buena circulación. La casa, de 2012, está en buen estado y admite una familia grande o quien quiera trabajar desde casa con espacio real.',
+      'Casa de 180 m² construidos sobre 320 m² de terreno, con cuatro habitaciones, tres baños y jardín. Cocina amplia abierta al patio, tanque de agua y gas directo: pensada para el día a día tachirense.\n\nPueblo Nuevo es residencial, cercano al centro y con buena circulación. La casa, de 2012, está en buen estado y admite una familia grande o quien quiera trabajar desde casa con espacio real.',
   },
   quinta: {
     title: 'Quinta con piscina y vista a las montañas en Pirineos',
@@ -67,7 +67,7 @@ const COPY = {
   warehouse: {
     title: 'Galpón con patio de maniobra en Zona Industrial',
     description:
-      '850 m² techados sobre 1.200 m² de terreno, altura libre, patio para gandolas, planta eléctrica, cisterna y vigilancia. Seis puestos y dos baños.\n\nZona Industrial de San Cristóbal, acceso de carga y operación continua. Pensado para distribución, taller o almacenamiento regional.',
+      '850 m² techados sobre 1.200 m² de terreno, altura libre, patio para gandolas, planta eléctrica, tanque de agua y vigilancia. Seis puestos y dos baños.\n\nZona Industrial de San Cristóbal, acceso de carga y operación continua. Pensado para distribución, taller o almacenamiento regional.',
   },
   office: {
     title: 'Oficina climatizada en el Centro Financiero',
@@ -82,7 +82,7 @@ const COPY = {
   farm: {
     title: 'Finca productiva con pozo y casa en Capacho',
     description:
-      '4,5 hectáreas con casa principal de 220 m², tres habitaciones, potreros, pozo de agua y cisterna. A minutos de San Cristóbal, en Capacho (municipio Independencia).\n\nFinca en producción, con reja y acceso vehicular. Sirve como retiro de fin de semana, proyecto agropecuario o inversión de tierra en los Andes tachirenses.',
+      '4,5 hectáreas con casa principal de 220 m², tres habitaciones, potreros, pozo de agua y tanque de agua. A minutos de San Cristóbal, en Capacho (municipio Independencia).\n\nFinca en producción, con reja y acceso vehicular. Sirve como retiro de fin de semana, proyecto agropecuario o inversión de tierra en los Andes tachirenses.',
   },
 };
 
