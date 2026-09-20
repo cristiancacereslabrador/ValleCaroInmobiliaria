@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { deleteProperty, getProperty } from '../../../lib/api/properties';
@@ -31,6 +31,7 @@ import { PriceTrendSection } from '../../../components/PriceTrendSection';
 import { SimilarPropertiesSection } from '../../../components/SimilarPropertiesSection';
 import { LeadForm } from '../../../components/LeadForm';
 import { WhatsAppCta } from '../../../components/WhatsAppCta';
+import { PhotoCarousel } from '../../../components/PhotoCarousel';
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -43,7 +44,10 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   const [isDeleting, setIsDeleting] = useState(false);
   const [pageUrl, setPageUrl] = useState('');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
+  const [lightboxPaused, setLightboxPaused] = useState(false);
+  const filmstripRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,6 +93,17 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   const galleryPhotoCount = media.filter((item) => item.type === MediaType.PHOTO).length;
 
   useEffect(() => {
+    if (lightboxIndex === null || galleryPhotoCount < 2 || lightboxPaused) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setLightboxIndex((index) => (index === null ? 0 : (index + 1) % galleryPhotoCount));
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [lightboxIndex, galleryPhotoCount, lightboxPaused]);
+
+  useEffect(() => {
     if (lightboxIndex === null) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -97,17 +112,27 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
       }
       if (galleryPhotoCount < 2) return;
       if (event.key === 'ArrowLeft') {
-        setLightboxIndex((index) =>
-          index === null ? 0 : (index + galleryPhotoCount - 1) % galleryPhotoCount,
+        setLightboxIndex((value) =>
+          value === null ? 0 : (value + galleryPhotoCount - 1) % galleryPhotoCount,
         );
       }
       if (event.key === 'ArrowRight') {
-        setLightboxIndex((index) => (index === null ? 0 : (index + 1) % galleryPhotoCount));
+        setLightboxIndex((value) => (value === null ? 0 : (value + 1) % galleryPhotoCount));
       }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxIndex, galleryPhotoCount]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    setPhotoIndex(lightboxIndex);
+  }, [lightboxIndex]);
+
+  useEffect(() => {
+    const active = filmstripRef.current?.querySelector<HTMLElement>('.is-on');
+    active?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }, [photoIndex]);
 
   async function handleDelete() {
     if (!property) return;
@@ -150,7 +175,13 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   const publicPhotos = media.filter(
     (item) => item.type === MediaType.PHOTO || item.type === MediaType.VIDEO,
   );
-  const galleryPhotos = publicPhotos.filter((item) => item.type === MediaType.PHOTO);
+  const galleryPhotos = publicPhotos
+    .filter((item) => item.type === MediaType.PHOTO)
+    .slice()
+    .sort((a, b) => {
+      if (a.isCover !== b.isCover) return a.isCover ? -1 : 1;
+      return a.position - b.position;
+    });
   const isPublished = property.listingStatus === ListingStatus.PUBLISHED;
   const whatsappText = `Hola, me interesa ${heading}${pageUrl ? ` (${pageUrl})` : ''}`;
   const pricePerM2 = formatPricePerM2(property.price, property.surfaceM2);
@@ -187,26 +218,48 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   return (
     <main className="page page-detail">
       {galleryPhotos.length > 0 && (
-        <div className={`detail-gallery count-${Math.min(galleryPhotos.length, 3)}`}>
-          {galleryPhotos.slice(0, 3).map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              className="detail-gallery-item"
-              onClick={() => setLightboxIndex(index)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={resolveMediaUrl(item.url)} alt={`${heading}, foto ${index + 1}`} />
-              {index === Math.min(galleryPhotos.length, 3) - 1 && galleryPhotos.length > 3 && (
-                <span className="detail-gallery-more">+{galleryPhotos.length - 3} fotos</span>
-              )}
-            </button>
-          ))}
+        <div className="detail-gallery">
+          <PhotoCarousel
+            variant="hero"
+            images={galleryPhotos.map((item, i) => ({
+              src: resolveMediaUrl(item.url),
+              alt: `${heading}, foto ${i + 1}`,
+            }))}
+            index={photoIndex}
+            onIndexChange={setPhotoIndex}
+            paused={lightboxIndex !== null}
+            onOpen={setLightboxIndex}
+          />
+          {galleryPhotos.length > 1 && (
+            <div className="photo-filmstrip" ref={filmstripRef} aria-hidden="true">
+              {galleryPhotos.map((item, i) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={i === photoIndex ? 'is-on' : undefined}
+                  onClick={() => setPhotoIndex(i)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={resolveMediaUrl(item.url)} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {lightboxIndex !== null && galleryPhotos[lightboxIndex] && (
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Foto de la propiedad">
+        <div
+          className="lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto de la propiedad"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setLightboxIndex(null);
+          }}
+          onMouseEnter={() => setLightboxPaused(true)}
+          onMouseLeave={() => setLightboxPaused(false)}
+        >
           <button type="button" className="lightbox-close" onClick={() => setLightboxIndex(null)} aria-label="Cerrar">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path
@@ -327,28 +380,17 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               <MediaGallery propertyId={property.id} media={media} onChange={setMedia} />
             </div>
           ) : (
-            publicPhotos.length > 3 && (
+            publicPhotos.some((item) => item.type === MediaType.VIDEO) && (
               <div className="section">
-                <h2>Más fotos</h2>
+                <h2>Vídeos</h2>
                 <div className="media-gallery">
-                  {publicPhotos.slice(3).map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className="media-item media-item-button"
-                      onClick={() => {
-                        const photoIndex = galleryPhotos.findIndex((photo) => photo.id === item.id);
-                        if (photoIndex >= 0) setLightboxIndex(photoIndex);
-                      }}
-                    >
-                      {item.type === MediaType.PHOTO ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={resolveMediaUrl(item.url)} alt={`${heading}`} />
-                      ) : (
+                  {publicPhotos
+                    .filter((item) => item.type === MediaType.VIDEO)
+                    .map((item) => (
+                      <div key={item.id} className="media-item">
                         <video src={resolveMediaUrl(item.url)} controls muted />
-                      )}
-                    </button>
-                  ))}
+                      </div>
+                    ))}
                 </div>
               </div>
             )
