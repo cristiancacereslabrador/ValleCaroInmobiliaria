@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { getBrokerSettings } from '../../lib/api/brokerSettings';
 import type { BrokerSettings } from '../../lib/api/types';
 import { resolveMediaUrl } from '../../lib/config';
-import { buildWhatsAppLink, socialHref, socialLabel } from '../../lib/format';
+import { buildWhatsAppLink } from '../../lib/format';
 import { FALLBACK_ABOUT_TEXT, FALLBACK_PORTAL_NAME } from '../../lib/branding';
 import { DEFAULT_TESTIMONIALS, parseTestimonials } from '../../lib/testimonials';
+import { SocialLinks } from '../../components/SocialLinks';
 
 export default function AboutPage() {
   const [settings, setSettings] = useState<BrokerSettings | null>(null);
@@ -73,21 +74,13 @@ export default function AboutPage() {
             <p>{FALLBACK_ABOUT_TEXT}</p>
           )}
           {settings?.coverageText && <p className="coverage-line">{settings.coverageText}</p>}
-          {(settings?.instagram || settings?.facebook) && (
-            <p className="coverage-line">
-              {settings.instagram && (
-                <a href={socialHref('instagram', settings.instagram)} target="_blank" rel="noreferrer">
-                  {socialLabel('instagram', settings.instagram)}
-                </a>
-              )}
-              {settings.instagram && settings.facebook ? ' · ' : null}
-              {settings.facebook && (
-                <a href={socialHref('facebook', settings.facebook)} target="_blank" rel="noreferrer">
-                  {socialLabel('facebook', settings.facebook)}
-                </a>
-              )}
-            </p>
-          )}
+          <SocialLinks
+            instagram={settings?.instagram}
+            facebook={settings?.facebook}
+            tiktok={settings?.tiktok}
+            whatsapp={whatsapp}
+            whatsappMessage={`Hola, quiero conocer ${name}.`}
+          />
           {whatsapp && (
             <p>
               <a

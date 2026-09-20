@@ -8,10 +8,11 @@ import { getBrokerSettings } from '../lib/api/brokerSettings';
 import { ApiError } from '../lib/api/client';
 import type { BrokerSettings, BrokerUser } from '../lib/api/types';
 import { resolveMediaUrl } from '../lib/config';
-import { buildWhatsAppLink, socialHref, socialLabel } from '../lib/format';
+import { buildWhatsAppLink } from '../lib/format';
 import { FALLBACK_PORTAL_LEGAL, FALLBACK_PORTAL_NAME, FALLBACK_PORTAL_SLOGAN } from '../lib/branding';
 import { PwaInstallBanner } from './PwaInstallBanner';
 import { WhatsAppCta } from './WhatsAppCta';
+import { SocialLinks } from './SocialLinks';
 
 function isAdminPath(pathname: string): boolean {
   return pathname === '/admin' || pathname.startsWith('/admin/');
@@ -204,6 +205,13 @@ export function SiteChrome({ children }: { children: ReactNode }) {
                   {settings.advisorTitle ? ` · ${settings.advisorTitle}` : ''}
                 </p>
               )}
+              <SocialLinks
+                instagram={settings?.instagram}
+                facebook={settings?.facebook}
+                tiktok={settings?.tiktok}
+                whatsapp={whatsapp}
+                whatsappMessage={`Hola, escribo a ${businessName}.`}
+              />
             </div>
             <div>
               <p className="footer-label">Oficina</p>
@@ -242,27 +250,6 @@ export function SiteChrome({ children }: { children: ReactNode }) {
             <div>
               <p className="footer-label">Cobertura</p>
               <p>{settings?.coverageText || 'San Cristóbal, Táchira, Venezuela'}</p>
-              {settings?.instagram && (
-                <p>
-                  <a href={socialHref('instagram', settings.instagram)} target="_blank" rel="noreferrer">
-                    {socialLabel('instagram', settings.instagram)}
-                  </a>
-                </p>
-              )}
-              {settings?.facebook && (
-                <p>
-                  <a href={socialHref('facebook', settings.facebook)} target="_blank" rel="noreferrer">
-                    {socialLabel('facebook', settings.facebook)}
-                  </a>
-                </p>
-              )}
-              {settings?.tiktok && (
-                <p>
-                  <a href={socialHref('tiktok', settings.tiktok)} target="_blank" rel="noreferrer">
-                    {socialLabel('tiktok', settings.tiktok)}
-                  </a>
-                </p>
-              )}
               <p>
                 <Link href="/contacto">Agendar visita</Link>
               </p>

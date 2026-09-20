@@ -1353,6 +1353,7 @@ main.page {
 }
 
 .detail-gallery-item {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
@@ -1677,14 +1678,14 @@ main.page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: rgba(247, 246, 242, 0.96);
+  color: #121212;
   border: 0;
   border-radius: var(--radius-pill);
-  height: var(--control-height);
-  min-height: var(--control-height);
-  padding: 0 0.9rem;
-  font-weight: 700;
-  line-height: 1;
+  width: 2.85rem;
+  height: 2.85rem;
+  min-height: 2.85rem;
+  padding: 0;
   cursor: pointer;
 }
 
@@ -1699,6 +1700,75 @@ main.page {
 
 .lightbox-nav.is-next {
   right: 1rem;
+}
+
+.lightbox-count {
+  position: absolute;
+  left: 50%;
+  bottom: 1.1rem;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: rgba(18, 18, 18, 0.72);
+  color: #f7efe0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+}
+
+.detail-gallery-more {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: rgba(18, 18, 18, 0.78);
+  color: #f7efe0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.media-item-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.85rem 0 0;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid #beaf87;
+  background: transparent;
+  color: #beaf87;
+  text-decoration: none;
+}
+
+.social-links a:hover {
+  background: #beaf87;
+  color: #121212;
+}
+
+.site-footer .social-links a {
+  border-color: #beaf87;
+  color: #beaf87;
+}
+
+.contact-card .social-links {
+  margin-top: 0.5rem;
 }
 
 @media (pointer: fine) and (hover: hover) and (min-width: 901px) {

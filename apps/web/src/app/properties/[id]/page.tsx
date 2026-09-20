@@ -86,6 +86,29 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
     setPageUrl(window.location.href);
   }, [params.id]);
 
+  const galleryPhotoCount = media.filter((item) => item.type === MediaType.PHOTO).length;
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setLightboxIndex(null);
+        return;
+      }
+      if (galleryPhotoCount < 2) return;
+      if (event.key === 'ArrowLeft') {
+        setLightboxIndex((index) =>
+          index === null ? 0 : (index + galleryPhotoCount - 1) % galleryPhotoCount,
+        );
+      }
+      if (event.key === 'ArrowRight') {
+        setLightboxIndex((index) => (index === null ? 0 : (index + 1) % galleryPhotoCount));
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxIndex, galleryPhotoCount]);
+
   async function handleDelete() {
     if (!property) return;
     if (!window.confirm('¿Seguro que quieres eliminar esta propiedad? Esta acción no se puede deshacer.')) {
@@ -174,6 +197,9 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={resolveMediaUrl(item.url)} alt={`${heading}, foto ${index + 1}`} />
+              {index === Math.min(galleryPhotos.length, 3) - 1 && galleryPhotos.length > 3 && (
+                <span className="detail-gallery-more">+{galleryPhotos.length - 3} fotos</span>
+              )}
             </button>
           ))}
         </div>
@@ -181,35 +207,69 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
 
       {lightboxIndex !== null && galleryPhotos[lightboxIndex] && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label="Foto de la propiedad">
-          <button type="button" className="lightbox-close" onClick={() => setLightboxIndex(null)}>
-            Cerrar
+          <button type="button" className="lightbox-close" onClick={() => setLightboxIndex(null)} aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
           {galleryPhotos.length > 1 && (
             <button
               type="button"
               className="lightbox-nav is-prev"
+              aria-label="Foto anterior"
               onClick={() =>
                 setLightboxIndex((index) =>
                   index === null ? 0 : (index + galleryPhotos.length - 1) % galleryPhotos.length,
                 )
               }
             >
-              Anterior
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path
+                  d="M15.2 5.2 8.4 12l6.8 6.8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={resolveMediaUrl(galleryPhotos[lightboxIndex].url)} alt="" />
+          <img
+            src={resolveMediaUrl(galleryPhotos[lightboxIndex].url)}
+            alt={`${heading}, foto ${lightboxIndex + 1} de ${galleryPhotos.length}`}
+          />
           {galleryPhotos.length > 1 && (
             <button
               type="button"
               className="lightbox-nav is-next"
+              aria-label="Foto siguiente"
               onClick={() =>
                 setLightboxIndex((index) => (index === null ? 0 : (index + 1) % galleryPhotos.length))
               }
             >
-              Siguiente
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path
+                  d="M8.8 5.2 15.6 12l-6.8 6.8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           )}
+          <p className="lightbox-count">
+            {lightboxIndex + 1} / {galleryPhotos.length}
+          </p>
         </div>
       )}
 
@@ -272,14 +332,22 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                 <h2>Más fotos</h2>
                 <div className="media-gallery">
                   {publicPhotos.slice(3).map((item) => (
-                    <div key={item.id} className="media-item">
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="media-item media-item-button"
+                      onClick={() => {
+                        const photoIndex = galleryPhotos.findIndex((photo) => photo.id === item.id);
+                        if (photoIndex >= 0) setLightboxIndex(photoIndex);
+                      }}
+                    >
                       {item.type === MediaType.PHOTO ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={resolveMediaUrl(item.url)} alt="" />
+                        <img src={resolveMediaUrl(item.url)} alt={`${heading}`} />
                       ) : (
                         <video src={resolveMediaUrl(item.url)} controls muted />
                       )}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>

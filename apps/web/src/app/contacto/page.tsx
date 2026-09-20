@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { getBrokerSettings } from '../../lib/api/brokerSettings';
 import type { BrokerSettings } from '../../lib/api/types';
 import { FALLBACK_PORTAL_NAME } from '../../lib/branding';
-import { buildWhatsAppLink, socialHref, socialLabel } from '../../lib/format';
+import { buildWhatsAppLink } from '../../lib/format';
+import { SocialLinks } from '../../components/SocialLinks';
 
 export default function ContactPage() {
   const [settings, setSettings] = useState<BrokerSettings | null>(null);
@@ -88,24 +89,17 @@ export default function ContactPage() {
               {settings.coverageText}
             </p>
           )}
-          {(settings?.instagram || settings?.facebook) && (
-            <p>
+          {(settings?.instagram || settings?.facebook || settings?.tiktok || whatsapp) && (
+            <div>
               <strong>Redes</strong>
-              <br />
-              {settings.instagram && (
-                <>
-                  <a href={socialHref('instagram', settings.instagram)} target="_blank" rel="noreferrer">
-                    {socialLabel('instagram', settings.instagram)}
-                  </a>
-                  {settings.facebook ? <br /> : null}
-                </>
-              )}
-              {settings.facebook && (
-                <a href={socialHref('facebook', settings.facebook)} target="_blank" rel="noreferrer">
-                  {socialLabel('facebook', settings.facebook)}
-                </a>
-              )}
-            </p>
+              <SocialLinks
+                instagram={settings?.instagram}
+                facebook={settings?.facebook}
+                tiktok={settings?.tiktok}
+                whatsapp={whatsapp}
+                whatsappMessage={`Hola, escribo a ${name}.`}
+              />
+            </div>
           )}
         </div>
         <div className="section contact-card">
