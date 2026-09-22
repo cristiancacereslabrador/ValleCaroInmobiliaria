@@ -392,7 +392,7 @@ main.page {
   background: var(--color-surface);
   border: 0;
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: visible;
   text-decoration: none;
   color: var(--color-text);
   box-shadow: var(--shadow-card);
@@ -406,6 +406,18 @@ main.page {
 .property-card-media {
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.property-card-content {
+  position: relative;
+}
+
+.property-card-body {
+  display: block;
+  padding: 1.05rem 2.75rem 1.2rem 1.1rem;
+  text-decoration: none;
+  color: inherit;
 }
 
 .photo-carousel {
@@ -679,13 +691,6 @@ main.page {
   justify-content: center;
   color: var(--color-text-muted);
   font-size: 0.85rem;
-}
-
-.property-card-body {
-  display: block;
-  padding: 1.05rem 1.1rem 1.2rem;
-  text-decoration: none;
-  color: inherit;
 }
 
 .property-card-price {
@@ -1180,9 +1185,15 @@ main.page {
 
 .property-card-save {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 2;
+  top: auto;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 3;
+}
+
+.property-card-save .save-to-list-panel {
+  top: auto;
+  bottom: calc(100% + 0.4rem);
 }
 
 .save-to-list {

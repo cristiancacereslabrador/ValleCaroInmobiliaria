@@ -93,30 +93,32 @@ export function PropertyCard({
               <span className="badge commute-duration-badge">{commuteDurationMinutes} min</span>
             )}
           </div>
-        </div>
-        <Link href={`/properties/${property.id}`} className="property-card-body">
-          <p className="property-card-price">{formatListingPrice(property.price, property.operationType)}</p>
-          {pricePerM2 && <p className="property-card-unit">{pricePerM2}</p>}
-          <p className="property-card-title">{heading}</p>
-          {location && <p className="property-card-location">{location}</p>}
-          {facts.length > 0 && <p className="property-card-meta">{facts.join(' · ')}</p>}
-          {highlights.length > 0 && (
-            <p className="property-card-highlights">{highlights.join(' · ')}</p>
+          {whatsappDigits && (
+            <WhatsAppCta
+              digits={whatsappDigits}
+              message={whatsappText}
+              propertyId={property.id}
+              className="property-card-whatsapp"
+            >
+              <WhatsAppGlyph />
+              <span className="visually-hidden">WhatsApp</span>
+            </WhatsAppCta>
           )}
-        </Link>
+        </div>
+        <div className="property-card-content">
+          <Link href={`/properties/${property.id}`} className="property-card-body">
+            <p className="property-card-price">{formatListingPrice(property.price, property.operationType)}</p>
+            {pricePerM2 && <p className="property-card-unit">{pricePerM2}</p>}
+            <p className="property-card-title">{heading}</p>
+            {location && <p className="property-card-location">{location}</p>}
+            {facts.length > 0 && <p className="property-card-meta">{facts.join(' · ')}</p>}
+            {highlights.length > 0 && (
+              <p className="property-card-highlights">{highlights.join(' · ')}</p>
+            )}
+          </Link>
+          <SaveToListButton propertyId={property.id} className="property-card-save" compact />
+        </div>
       </article>
-      <SaveToListButton propertyId={property.id} className="property-card-save" compact />
-      {whatsappDigits && (
-        <WhatsAppCta
-          digits={whatsappDigits}
-          message={whatsappText}
-          propertyId={property.id}
-          className="property-card-whatsapp"
-        >
-          <WhatsAppGlyph />
-          <span className="visually-hidden">WhatsApp</span>
-        </WhatsAppCta>
-      )}
     </div>
   );
 }
