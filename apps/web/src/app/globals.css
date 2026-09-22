@@ -411,11 +411,12 @@ main.page {
 
 .property-card-content {
   position: relative;
+  padding-bottom: 0.15rem;
 }
 
 .property-card-body {
   display: block;
-  padding: 1.05rem 2.75rem 1.2rem 1.1rem;
+  padding: 1.05rem 2.85rem 1.2rem 1.1rem;
   text-decoration: none;
   color: inherit;
 }
@@ -1183,17 +1184,22 @@ main.page {
   position: relative;
 }
 
-.property-card-save {
+.save-to-list.property-card-save {
   position: absolute;
   top: auto;
+  left: auto;
   right: 0.75rem;
   bottom: 0.75rem;
   z-index: 3;
+  display: block;
+  margin: 0;
 }
 
-.property-card-save .save-to-list-panel {
+.save-to-list.property-card-save .save-to-list-panel {
   top: auto;
   bottom: calc(100% + 0.4rem);
+  right: 0;
+  left: auto;
 }
 
 .save-to-list {
