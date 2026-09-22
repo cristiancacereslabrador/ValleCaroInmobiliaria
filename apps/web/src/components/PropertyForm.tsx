@@ -591,7 +591,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
 
       {mode === 'create' && (
         <p className="page-subtitle">
-          Después de crear la ficha podrás subir fotos y vídeos en la pantalla de edición.
+          Al crear la ficha pasarás a Editar, donde se suben fotos y vídeos (también desde el teléfono).
         </p>
       )}
 

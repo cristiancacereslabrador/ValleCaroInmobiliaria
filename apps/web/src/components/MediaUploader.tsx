@@ -4,14 +4,16 @@ import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'reac
 import { uploadMedia } from '../lib/api/media';
 import { ApiError } from '../lib/api/client';
 import type { PropertyMedia } from '../lib/api/types';
-import { isInAppBrowser, isStandaloneDisplay } from '../lib/pwa';
+import { prepareMediaFile } from '../lib/prepareMediaUpload';
+import { isHandheldDevice, isInAppBrowser, isStandaloneDisplay } from '../lib/pwa';
 
 interface MediaUploaderProps {
   propertyId: string;
   onUploaded: (media: PropertyMedia) => void;
 }
 
-const FILE_INPUT_ACCEPT = 'image/*,video/*,.heic,.heif,.heics,.mov,.m4v,.mp4,.webm,.jpg,.jpeg,.png,.webp';
+const DESKTOP_ACCEPT = 'image/*,video/*,.heic,.heif,.heics,.mov,.m4v,.mp4,.webm,.jpg,.jpeg,.png,.webp';
+const MOBILE_ACCEPT = 'image/*,video/*';
 const MAX_ATTEMPTS = 4;
 
 function sleep(ms: number): Promise<void> {
@@ -27,6 +29,9 @@ function isRetryableUploadError(err: unknown): boolean {
 
 function uploadErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
+    if (err.status === 401) {
+      return 'La sesión caducó. Entra otra vez al panel y vuelve a subir las fotos.';
+    }
     return err.message;
   }
   if (err instanceof Error && err.message.trim()) {
@@ -41,7 +46,8 @@ interface QueueItem {
 }
 
 export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const queueRef = useRef<QueueItem[]>([]);
   const runningRef = useRef(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -51,6 +57,8 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
   const [error, setError] = useState<string | null>(null);
   const [isTour360, setIsTour360] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const accept = showCamera ? MOBILE_ACCEPT : DESKTOP_ACCEPT;
 
   const drainQueue = useCallback(async () => {
     if (runningRef.current) return;
@@ -61,7 +69,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
     try {
       while (queueRef.current.length > 0) {
         const item = queueRef.current[0];
-        setCurrentName(item.file.name);
+        setCurrentName(item.file.name || 'archivo');
         setProgress(0);
         setPendingCount(queueRef.current.length);
 
@@ -69,9 +77,10 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
         let uploaded = false;
         for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
           try {
+            const prepared = await prepareMediaFile(item.file);
             const media = await uploadMedia(
               propertyId,
-              item.file,
+              prepared,
               item.tour360 ? 'tour360' : undefined,
               (percent) => setProgress(percent),
             );
@@ -109,12 +118,15 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    setShowCamera(isHandheldDevice());
     if (isInAppBrowser()) {
-      setHint('Ábrelo en Chrome o Safari, o instálalo en el teléfono. Desde WhatsApp la subida se corta al cambiar de chat.');
+      setHint(
+        'Ábrelo en Chrome o Safari, no desde WhatsApp: al cambiar de chat Android corta la subida.',
+      );
     } else if (!isStandaloneDisplay()) {
-      setHint('Puedes instalarlo como app en el teléfono. En PC y en el celular funciona igual; las fotos se pueden elegir varias a la vez.');
+      setHint('En el teléfono usa Galería o Tomar foto. Puedes marcar varias a la vez.');
     } else {
-      setHint('Puedes marcar varias fotos o vídeos. Si sales un momento, al volver se reintenta lo que quedó pendiente.');
+      setHint('Puedes marcar varias fotos o vídeos. Si sales un momento, al volver se reintenta.');
     }
   }, []);
 
@@ -132,33 +144,61 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
     };
   }, [drainQueue]);
 
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []);
+  function enqueueFiles(fileList: FileList | null) {
+    const files = Array.from(fileList ?? []);
     if (files.length === 0) return;
     queueRef.current.push(...files.map((file) => ({ file, tour360: isTour360 })));
     setPendingCount(queueRef.current.length);
     setIsTour360(false);
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
     void drainQueue();
+  }
+
+  function handleGalleryChange(event: ChangeEvent<HTMLInputElement>) {
+    enqueueFiles(event.target.files);
+    if (galleryRef.current) galleryRef.current.value = '';
+  }
+
+  function handleCameraChange(event: ChangeEvent<HTMLInputElement>) {
+    enqueueFiles(event.target.files);
+    if (cameraRef.current) cameraRef.current.value = '';
   }
 
   return (
     <div>
       <p className="page-subtitle">
-        En el teléfono: Galería, Fotos o Archivos. En el computador: carpeta de fotos. JPG, HEIC,
-        PNG, WebP, MP4, MOV y WebM.
+        En Android: Galería o Tomar foto. JPG, HEIC, PNG, WebP, MP4 y MOV. Las fotos grandes se
+        achican solas para que no falle la subida.
         {hint ? ` ${hint}` : ''}
       </p>
       <div className="uploader">
         <input
-          ref={inputRef}
+          ref={galleryRef}
+          id="media-gallery-input"
+          className="uploader-input"
           type="file"
-          accept={FILE_INPUT_ACCEPT}
+          accept={accept}
           multiple
-          onChange={handleFileChange}
+          onChange={handleGalleryChange}
         />
+        <label htmlFor="media-gallery-input" className="btn btn-secondary">
+          Elegir de la galería
+        </label>
+        {showCamera && (
+          <>
+            <input
+              ref={cameraRef}
+              id="media-camera-input"
+              className="uploader-input"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleCameraChange}
+            />
+            <label htmlFor="media-camera-input" className="btn btn-secondary">
+              Tomar foto
+            </label>
+          </>
+        )}
         <label className="uploader-tour-option">
           <input
             type="checkbox"

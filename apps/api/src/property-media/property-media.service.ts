@@ -8,12 +8,17 @@ import { MediaType } from './entities/media-type.enum';
 import { MediaStorageService } from './media-storage.service';
 import { PropertiesService } from '../properties/properties.service';
 import { convertHeicToJpeg, isHeicUpload } from './heic-convert.util';
+import { applySniffedIdentity, sniffUploadKind } from './upload-sniff.util';
 
 const ALLOWED_PHOTO_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif', '.heics'];
 const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.m4v'];
 const PHOTO_MIME_TYPES = new Set([
   'image/jpeg',
+  'image/jpg',
+  'image/pjpeg',
+  'image/x-jpeg',
   'image/png',
+  'image/x-png',
   'image/webp',
   'image/heic',
   'image/heif',
@@ -191,13 +196,16 @@ export class PropertyMediaService {
    * se infiere tour360 automaticamente sin pedirlo explicitamente.
    */
   private async normalizeUploadFile(file: UploadableFile): Promise<UploadableFile> {
-    if (!isHeicUpload(file)) {
-      return file;
+    const kind = sniffUploadKind(file.buffer);
+    const identified = applySniffedIdentity(file, kind);
+
+    if (kind !== 'heic' && !isHeicUpload(identified)) {
+      return identified;
     }
 
     try {
-      const jpegBuffer = await convertHeicToJpeg(file.buffer);
-      const baseName = path.parse(file.originalname || 'foto').name || 'foto';
+      const jpegBuffer = await convertHeicToJpeg(identified.buffer);
+      const baseName = path.parse(identified.originalname || 'foto').name || 'foto';
       return {
         originalname: `${baseName}.jpg`,
         mimetype: 'image/jpeg',

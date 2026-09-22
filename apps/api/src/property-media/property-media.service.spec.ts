@@ -79,11 +79,29 @@ describe('PropertyMediaService', () => {
       expect(mediaStorageService.saveFile).not.toHaveBeenCalled();
     });
 
-    it('acepta un formato de imagen soportado (jpg)', async () => {
-      const result = await service.uploadMedia(propertyId, baseImageFile);
+    it('acepta foto de Android sin extensión y MIME genérico si el contenido es JPEG', async () => {
+      const file = {
+        originalname: '',
+        mimetype: 'application/octet-stream',
+        size: 12,
+        buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]),
+      };
+
+      const result = await service.uploadMedia(propertyId, file);
 
       expect(result).toMatchObject({ type: MediaType.PHOTO });
-      expect(mediaStorageService.saveFile).toHaveBeenCalledWith(propertyId, baseImageFile);
+      expect(mediaStorageService.saveFile).toHaveBeenCalledWith(
+        propertyId,
+        expect.objectContaining({ originalname: 'foto.jpg', mimetype: 'image/jpeg' }),
+      );
+    });
+
+    it('acepta el MIME image/jpg que envían algunos Android', async () => {
+      const file = { ...baseImageFile, originalname: 'image', mimetype: 'image/jpg' };
+
+      const result = await service.uploadMedia(propertyId, file);
+
+      expect(result).toMatchObject({ type: MediaType.PHOTO });
     });
 
     it('acepta un formato de video soportado (mp4)', async () => {
