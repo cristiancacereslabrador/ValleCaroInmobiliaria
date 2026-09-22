@@ -1819,14 +1819,27 @@ main.page {
   margin: 1.2rem 0 0.5rem;
 }
 
-.property-card-save .btn {
-  width: 2rem;
-  height: 2rem;
-  min-height: 2rem;
-  border-radius: var(--radius-control);
+.save-to-list.property-card-save .btn,
+.save-to-list.property-card-save .btn.btn-secondary {
+  width: auto;
+  height: auto;
+  min-height: 0;
   padding: 0;
-  background: rgba(255, 252, 247, 0.95);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   color: var(--color-primary);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.save-to-list.property-card-save .btn:hover,
+.save-to-list.property-card-save .btn.btn-secondary:hover {
+  background: transparent;
+  color: var(--color-accent);
+  border-color: transparent;
 }
 
 .field textarea {
