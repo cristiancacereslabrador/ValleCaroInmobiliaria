@@ -65,7 +65,7 @@ const EMPTY_AMENITIES = PROPERTY_AMENITY_FIELDS.reduce(
 const EMPTY_FORM: FormState = {
   type: '',
   operationType: '',
-  listingStatus: ListingStatus.DRAFT,
+  listingStatus: ListingStatus.PUBLISHED,
   title: '',
   description: '',
   price: '',
@@ -300,6 +300,9 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
               </option>
             ))}
           </select>
+          <span className="field-hint">
+            Borrador y Pausada no salen en el catálogo público. Elige Publicada para que se vea.
+          </span>
         </div>
 
         <div className="field">
