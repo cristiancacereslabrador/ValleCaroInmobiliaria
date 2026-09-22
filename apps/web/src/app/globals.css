@@ -495,7 +495,7 @@ main.page {
   width: 2.5rem;
   height: 2.5rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   background: rgba(247, 246, 242, 0.94);
   color: #121212;
   display: inline-flex;
@@ -545,7 +545,7 @@ main.page {
   height: 0.45rem;
   padding: 0;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   background: rgba(247, 246, 242, 0.55);
   cursor: pointer;
   transition: width 0.2s ease, background 0.2s ease;
@@ -623,7 +623,7 @@ main.page {
   height: 3.4rem;
   padding: 0;
   border: 2px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   overflow: hidden;
   background: #d9d0c0;
   cursor: pointer;
@@ -1420,7 +1420,7 @@ main.page {
   height: 3.35rem;
   min-height: 3.35rem;
   padding: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   background: #25d366;
   color: #fff;
   font-weight: 700;
@@ -2046,7 +2046,7 @@ main.page {
   background: rgba(247, 246, 242, 0.96);
   color: #121212;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   width: 2.85rem;
   height: 2.85rem;
   min-height: 2.85rem;
@@ -2115,7 +2115,7 @@ main.page {
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   border: 1px solid #beaf87;
   background: transparent;
   color: #beaf87;
@@ -2327,7 +2327,7 @@ body:has(.pwa-banner) main.page {
   width: 2.15rem;
   height: 2.15rem;
   padding: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   background: #25d366;
   color: #fff;
   text-decoration: none;
