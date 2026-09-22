@@ -222,7 +222,6 @@ export default function CatalogPage() {
                 <PropertyCard
                   key={property.id}
                   property={property}
-                  whatsapp={settings?.whatsapp}
                   commuteDurationMinutes={
                     isPropertyWithCommute(property)
                       ? Math.round(property.commuteDurationSeconds / 60)

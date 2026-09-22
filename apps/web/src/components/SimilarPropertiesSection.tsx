@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { getSimilarProperties } from '../lib/api/similarProperties';
-import { getBrokerSettings } from '../lib/api/brokerSettings';
 import type { Property } from '../lib/api/types';
 import { PropertyCard } from './PropertyCard';
 
@@ -25,19 +24,15 @@ interface SimilarPropertiesSectionProps {
  */
 export function SimilarPropertiesSection({ propertyId }: SimilarPropertiesSectionProps) {
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
-  const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
 
-    Promise.all([getSimilarProperties(propertyId), getBrokerSettings().catch(() => null)])
-      .then(([data, settings]) => {
-        if (!cancelled) {
-          setSimilarProperties(data);
-          setWhatsapp(settings?.whatsapp ?? null);
-        }
+    getSimilarProperties(propertyId)
+      .then((data) => {
+        if (!cancelled) setSimilarProperties(data);
       })
       .catch(() => {
         if (!cancelled) setSimilarProperties([]);
@@ -64,7 +59,7 @@ export function SimilarPropertiesSection({ propertyId }: SimilarPropertiesSectio
       ) : (
         <div className="property-grid">
           {similarProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} whatsapp={whatsapp} />
+            <PropertyCard key={property.id} property={property} />
           ))}
         </div>
       )}
