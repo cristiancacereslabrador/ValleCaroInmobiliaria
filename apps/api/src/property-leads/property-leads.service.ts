@@ -34,7 +34,14 @@ export class PropertyLeadsService {
     const property = propertyId ? await this.requirePublishedProperty(propertyId) : null;
 
     if (!property && origin !== LeadOrigin.VALUATION && origin !== LeadOrigin.SELL_FORM) {
-      if (origin !== LeadOrigin.WHATSAPP || !dto.message) {
+      // WEB sin ficha = formulario general de /contacto (agenda visita).
+      // WHATSAPP sin ficha = tracking del FAB / CTAs globales.
+      if (origin !== LeadOrigin.WEB && origin !== LeadOrigin.WHATSAPP) {
+        throw new BadRequestException(
+          'Indica una propiedad, o usa el formulario de captación o tasación.',
+        );
+      }
+      if (origin === LeadOrigin.WHATSAPP && !dto.message) {
         throw new BadRequestException('Indica una propiedad, o usa el formulario de captación o tasación.');
       }
     }
@@ -87,7 +94,7 @@ export class PropertyLeadsService {
     if (property?.operationType === OperationType.SALE) {
       return LeadIntent.BUY;
     }
-    return null;
+    return LeadIntent.VISIT;
   }
 
   private async requirePublishedProperty(id: string): Promise<Property> {

@@ -6,6 +6,7 @@ import type { BrokerSettings } from '../../lib/api/types';
 import { FALLBACK_PORTAL_NAME } from '../../lib/branding';
 import { buildWhatsAppLink } from '../../lib/format';
 import { SocialLinks } from '../../components/SocialLinks';
+import { LeadForm } from '../../components/LeadForm';
 
 export default function ContactPage() {
   const [settings, setSettings] = useState<BrokerSettings | null>(null);
@@ -104,18 +105,23 @@ export default function ContactPage() {
         </div>
         <div className="section contact-card">
           <h2>Agenda una visita</h2>
-          <p>Cuéntanos qué buscas. Respondemos por WhatsApp el mismo día hábil.</p>
-          {whatsapp ? (
-            <a
-              className="btn"
-              href={buildWhatsAppLink(whatsapp, `Hola, escribo a ${name}.`)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Escribir por WhatsApp
-            </a>
-          ) : (
-            <p>El canal de WhatsApp se configura desde el panel.</p>
+          <p>
+            Deja tus datos y te respondemos. El mensaje llega al correo de la asesora y queda en el
+            panel de leads.
+          </p>
+          <LeadForm />
+          {whatsapp && (
+            <p className="field-hint">
+              También puedes escribir por{' '}
+              <a
+                href={buildWhatsAppLink(whatsapp, `Hola, escribo a ${name}. Quiero agendar una visita.`)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                WhatsApp
+              </a>
+              .
+            </p>
           )}
         </div>
       </div>

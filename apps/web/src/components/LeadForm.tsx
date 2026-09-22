@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { createLead } from '../lib/api/leads';
+import { createLead, createPublicLead } from '../lib/api/leads';
 import { ApiError } from '../lib/api/client';
 
 function toIsoOrUndefined(value: string): string | undefined {
@@ -11,7 +11,7 @@ function toIsoOrUndefined(value: string): string | undefined {
   return date.toISOString();
 }
 
-export function LeadForm({ propertyId }: { propertyId: string }) {
+export function LeadForm({ propertyId }: { propertyId?: string }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -42,15 +42,20 @@ export function LeadForm({ propertyId }: { propertyId: string }) {
     setIsSubmitting(true);
     try {
       const visitIso = toIsoOrUndefined(visitAt);
-      await createLead(propertyId, {
+      const payload = {
         name: name.trim(),
         email: email.trim() || undefined,
         phone: phone.trim() || undefined,
         message: message.trim(),
-        origin: 'web',
-        intent: visitIso ? 'visit' : undefined,
+        origin: 'web' as const,
+        intent: visitIso ? ('visit' as const) : undefined,
         visitAt: visitIso,
-      });
+      };
+      if (propertyId) {
+        await createLead(propertyId, payload);
+      } else {
+        await createPublicLead(payload);
+      }
       setSuccess(true);
       setName('');
       setEmail('');
