@@ -12,9 +12,9 @@ const sharp = createRequire(join(root, 'apps/api/package.json'))('sharp');
 
 const web = join(root, 'apps/web');
 const outputs = [
-  { file: 'public/icons/icon-192.png', size: 192, variant: 'any' },
-  { file: 'public/icons/icon-512.png', size: 512, variant: 'any' },
-  { file: 'public/icons/icon-maskable-512.png', size: 512, variant: 'maskable' },
+  { file: 'public/icons/lvg-192.png', size: 192, variant: 'any' },
+  { file: 'public/icons/lvg-512.png', size: 512, variant: 'any' },
+  { file: 'public/icons/lvg-maskable-512.png', size: 512, variant: 'maskable' },
   { file: 'src/app/apple-icon.png', size: 180, variant: 'maskable' },
 ];
 
