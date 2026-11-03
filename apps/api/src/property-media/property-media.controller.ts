@@ -17,16 +17,22 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
+import { promises as fs } from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { diskStorage } from 'multer';
 import { PropertyMediaService } from './property-media.service';
-import { MulterExceptionFilter } from './multer-exception.filter';
+import { MulterExceptionFilter, maxUploadSizeMb } from './multer-exception.filter';
 
 // Limite "duro" a nivel de multer, previo a la validacion de negocio
 // (configurable por MEDIA_MAX_IMAGE_SIZE_MB/MEDIA_MAX_VIDEO_SIZE_MB) que
 // hace PropertyMediaService segun el tipo de archivo. Se fija al mayor de
-// los dos limites (video, 100 MB por defecto) como cota de seguridad; el
-// limite real y configurable por tipo se aplica despues en el servicio.
-const HARD_UPLOAD_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
+// los dos limites (video) como cota de seguridad; el limite real y
+// configurable por tipo se aplica despues en el servicio.
+const HARD_UPLOAD_SIZE_LIMIT_BYTES = maxUploadSizeMb() * 1024 * 1024;
+// Los videos de telefono pesan cientos de MB: se escriben a disco en vez de
+// tenerlos enteros en memoria (la VM es pequena).
+const UPLOAD_TMP_DIR = path.join(os.tmpdir(), 'media-uploads');
 
 @Controller('properties/:propertyId/media')
 @UseFilters(MulterExceptionFilter)
@@ -38,11 +44,18 @@ export class PropertyMediaController {
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: memoryStorage(),
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          fs.mkdir(UPLOAD_TMP_DIR, { recursive: true }).then(
+            () => cb(null, UPLOAD_TMP_DIR),
+            (error: Error) => cb(error, UPLOAD_TMP_DIR),
+          );
+        },
+      }),
       limits: { fileSize: HARD_UPLOAD_SIZE_LIMIT_BYTES },
     }),
   )
-  upload(
+  async upload(
     @Param('propertyId', ParseUUIDPipe) propertyId: string,
     @UploadedFile() file: Express.Multer.File,
     // Campo opcional de formulario "type": unica forma de distinguir un
@@ -56,7 +69,11 @@ export class PropertyMediaController {
       throw new BadRequestException('No se recibio ningun archivo (campo "file")');
     }
 
-    return this.propertyMediaService.uploadMedia(propertyId, file, type);
+    try {
+      return await this.propertyMediaService.uploadMedia(propertyId, file, type);
+    } finally {
+      await fs.rm(file.path, { force: true });
+    }
   }
 
   @Get()

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GoogleMap, InfoWindow, Marker, Polygon, Polyline } from '@react-google-maps/api';
-import { getGoogleMapsApiKey, resolveMediaUrl } from '../lib/config';
+import { getGoogleMapsApiKey, resolveImageUrl } from '../lib/config';
 import { useGoogleMapsLoader } from '../lib/googleMaps';
 import { MapPlaceholder, MapUnavailableNotice } from './MapStatusNotice';
 import type { AreaVertex, Property } from '../lib/api/types';
@@ -254,7 +254,7 @@ function ListingMapLoaded({
             <div className="map-info-card">
               {selected.coverPhotoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={resolveMediaUrl(selected.coverPhotoUrl)} alt="" />
+                <img src={resolveImageUrl(selected.coverPhotoUrl, 320)} alt="" />
               ) : null}
               <h3>{propertyTypeLabel(selected.type)}</h3>
               <p>{formatPrice(selected.price)}</p>

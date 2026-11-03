@@ -15,6 +15,12 @@ interface MediaUploaderProps {
 const DESKTOP_ACCEPT = 'image/*,video/*,.heic,.heif,.heics,.mov,.m4v,.mp4,.webm,.jpg,.jpeg,.png,.webp';
 const MOBILE_ACCEPT = 'image/*,video/*';
 const MAX_ATTEMPTS = 4;
+// Debe coincidir con MEDIA_MAX_VIDEO_SIZE_MB de la API.
+const MAX_VIDEO_MB = 500;
+
+function isVideoFile(file: File): boolean {
+  return file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|3gp)$/i.test(file.name);
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -48,11 +54,13 @@ interface QueueItem {
 export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+  const videoCameraRef = useRef<HTMLInputElement>(null);
   const queueRef = useRef<QueueItem[]>([]);
   const runningRef = useRef(false);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [currentName, setCurrentName] = useState<string | null>(null);
+  const [currentIsVideo, setCurrentIsVideo] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isTour360, setIsTour360] = useState(false);
@@ -70,6 +78,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
       while (queueRef.current.length > 0) {
         const item = queueRef.current[0];
         setCurrentName(item.file.name || 'archivo');
+        setCurrentIsVideo(isVideoFile(item.file));
         setProgress(0);
         setPendingCount(queueRef.current.length);
 
@@ -145,12 +154,24 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
   }, [drainQueue]);
 
   function enqueueFiles(fileList: FileList | null) {
-    const files = Array.from(fileList ?? []);
-    if (files.length === 0) return;
-    queueRef.current.push(...files.map((file) => ({ file, tour360: isTour360 })));
-    setPendingCount(queueRef.current.length);
-    setIsTour360(false);
-    void drainQueue();
+    const picked = Array.from(fileList ?? []);
+    const tooBig = picked.filter(
+      (file) => isVideoFile(file) && file.size > MAX_VIDEO_MB * 1024 * 1024,
+    );
+    const files = picked.filter((file) => !tooBig.includes(file));
+    if (files.length > 0) {
+      queueRef.current.push(...files.map((file) => ({ file, tour360: isTour360 })));
+      setPendingCount(queueRef.current.length);
+      setIsTour360(false);
+      void drainQueue();
+    }
+    // Despues de drainQueue, que limpia el error al arrancar.
+    if (tooBig.length > 0) {
+      setError(
+        `${tooBig.map((file) => file.name || 'El vídeo').join(', ')} pesa más de ${MAX_VIDEO_MB} MB. ` +
+          'Recórtalo o grábalo en 1080p (no 4K) y vuelve a intentarlo.',
+      );
+    }
   }
 
   function handleGalleryChange(event: ChangeEvent<HTMLInputElement>) {
@@ -163,11 +184,17 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
     if (cameraRef.current) cameraRef.current.value = '';
   }
 
+  function handleVideoCameraChange(event: ChangeEvent<HTMLInputElement>) {
+    enqueueFiles(event.target.files);
+    if (videoCameraRef.current) videoCameraRef.current.value = '';
+  }
+
   return (
     <div>
       <p className="page-subtitle">
-        En Android: Galería o Tomar foto. JPG, HEIC, PNG, WebP, MP4 y MOV. Las fotos grandes se
-        achican solas para que no falle la subida.
+        En Android: Galería, Tomar foto o Grabar vídeo. JPG, HEIC, PNG, WebP, MP4 y MOV (vídeos
+        hasta {MAX_VIDEO_MB} MB). Las fotos grandes se achican solas y los vídeos se convierten a
+        un formato liviano que se ve en cualquier teléfono.
         {hint ? ` ${hint}` : ''}
       </p>
       <div className="uploader">
@@ -197,6 +224,18 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
             <label htmlFor="media-camera-input" className="btn btn-secondary">
               Tomar foto
             </label>
+            <input
+              ref={videoCameraRef}
+              id="media-video-camera-input"
+              className="uploader-input"
+              type="file"
+              accept="video/*"
+              capture="environment"
+              onChange={handleVideoCameraChange}
+            />
+            <label htmlFor="media-video-camera-input" className="btn btn-secondary">
+              Grabar vídeo
+            </label>
           </>
         )}
         <label className="uploader-tour-option">
@@ -210,8 +249,11 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
         </label>
         {isUploading && (
           <span className="spinner-text">
-            Subiendo{currentName ? ` ${currentName}` : ''}
-            {progress !== null ? ` · ${progress}%` : '…'}
+            {currentIsVideo && progress === 100
+              ? `Procesando vídeo${currentName ? ` ${currentName}` : ''}… puede tardar un par de minutos`
+              : `Subiendo${currentName ? ` ${currentName}` : ''}${
+                  progress !== null ? ` · ${progress}%` : '…'
+                }`}
             {pendingCount > 1 ? ` · quedan ${pendingCount}` : ''}
           </span>
         )}

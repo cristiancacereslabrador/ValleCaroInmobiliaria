@@ -107,7 +107,7 @@ export interface UploadRequestOptions {
   onProgress?: (percent: number) => void;
 }
 
-const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000;
+const UPLOAD_TIMEOUT_MS = 30 * 60 * 1000;
 const NETWORK_UPLOAD_ERROR =
   'Se cortó la conexión al subir. Al volver a esta pantalla se reintenta. Si estás en WhatsApp, ábrelo en el navegador o instala la app.';
 

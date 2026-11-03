@@ -6,6 +6,7 @@ import Link from 'next/link';
 export interface CarouselImage {
   src: string;
   alt: string;
+  srcSet?: string;
 }
 
 function Chevron({ dir }: { dir: 'prev' | 'next' }) {
@@ -30,6 +31,7 @@ export function PhotoCarousel({
   delayMs = 0,
   paused = false,
   variant = 'hero',
+  sizes,
   href,
   index,
   onIndexChange,
@@ -41,6 +43,8 @@ export function PhotoCarousel({
   delayMs?: number;
   paused?: boolean;
   variant?: 'hero' | 'card';
+  /** Atributo `sizes` de las imagenes, para elegir la variante del `srcSet`. */
+  sizes?: string;
   href?: string;
   index?: number;
   onIndexChange?: (index: number) => void;
@@ -53,6 +57,17 @@ export function PhotoCarousel({
   const current = index ?? internal;
   const canSlide = images.length > 1;
   const isPaused = paused || hovering;
+  // Solo se descargan la foto visible y sus vecinas (y las ya vistas): antes
+  // cada tarjeta del catalogo bajaba todas sus fotos al abrir la pagina.
+  const [seen, setSeen] = useState<Set<number>>(() => new Set([current]));
+  useEffect(() => {
+    setSeen((prev) => (prev.has(current) ? prev : new Set(prev).add(current)));
+  }, [current]);
+  const shouldRender = (i: number) => {
+    if (seen.has(i) || i === current) return true;
+    const n = images.length;
+    return i === (current + 1) % n || i === (current - 1 + n) % n;
+  };
 
   function go(next: number) {
     if (!canSlide) return;
@@ -108,8 +123,17 @@ export function PhotoCarousel({
       <div className="photo-carousel-stack">
         {images.map((image, i) => (
           <div key={`${image.src}-${i}`} className={`photo-carousel-layer${i === current ? ' is-on' : ''}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image.src} alt={i === current ? image.alt : ''} />
+            {shouldRender(i) && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={image.src}
+                srcSet={image.srcSet}
+                sizes={image.srcSet ? sizes : undefined}
+                alt={i === current ? image.alt : ''}
+                loading={variant === 'hero' && i === current ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            )}
           </div>
         ))}
       </div>

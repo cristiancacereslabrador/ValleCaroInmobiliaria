@@ -38,7 +38,12 @@ import { PropertyLeadsModule } from './property-leads/property-leads.module';
         const brokerRoot = path.join(process.cwd(), 'storage', 'broker');
 
         return [
-          { rootPath: propertiesRoot, serveRoot: '/media/properties' },
+          {
+            rootPath: propertiesRoot,
+            serveRoot: '/media/properties',
+            // Los archivos se guardan con nombre UUID y nunca se sobrescriben.
+            serveStaticOptions: { maxAge: 30 * 24 * 60 * 60 * 1000 },
+          },
           { rootPath: brokerRoot, serveRoot: '/media/broker' },
         ];
       },

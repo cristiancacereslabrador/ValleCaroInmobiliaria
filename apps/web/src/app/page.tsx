@@ -12,7 +12,7 @@ import { ListingMap } from '../components/ListingMap';
 import { CommuteSearchControl, type CommuteSearchValue } from '../components/CommuteSearchControl';
 import { SaveSearchAlertForm } from '../components/SaveSearchAlertForm';
 import { SAN_CRISTOBAL_CENTER, SAN_CRISTOBAL_ZOOM } from '../lib/geo';
-import { resolveMediaUrl } from '../lib/config';
+import { resolveImageUrl } from '../lib/config';
 
 function isPropertyWithCommute(property: Property): property is PropertyWithCommute {
   return typeof (property as Partial<PropertyWithCommute>).commuteDurationSeconds === 'number';
@@ -124,7 +124,7 @@ export default function CatalogPage() {
         style={
           heroPhoto
             ? {
-                backgroundImage: `linear-gradient(180deg, rgba(12, 18, 16, 0.2) 0%, rgba(12, 18, 16, 0.78) 100%), url("${resolveMediaUrl(heroPhoto)}")`,
+                backgroundImage: `linear-gradient(180deg, rgba(12, 18, 16, 0.2) 0%, rgba(12, 18, 16, 0.78) 100%), url("${resolveImageUrl(heroPhoto, 1600)}")`,
               }
             : undefined
         }

@@ -37,6 +37,31 @@ export function resolveMediaUrl(url: string): string {
   return `${getMediaBaseUrl()}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
+/** Anchos que genera la API en `/media/w/<ancho>/properties/...` (image-variants.handler.ts). */
+export type ImageWidth = 320 | 640 | 1080 | 1600;
+
+const RESIZABLE_PHOTO = /^\/media\/(properties\/[^/]+\/[^/]+\.(?:jpe?g|png|webp))$/i;
+
+/**
+ * URL de una version reducida (WebP) de una foto de propiedad. Para
+ * cualquier otra URL devuelve la original.
+ */
+export function resolveImageUrl(url: string, width: ImageWidth): string {
+  const match = RESIZABLE_PHOTO.exec(url);
+  if (!match) {
+    return resolveMediaUrl(url);
+  }
+  return `${getMediaBaseUrl()}/media/w/${width}/${match[1]}`;
+}
+
+/** `srcset` con varias variantes para que el navegador elija segun pantalla. */
+export function imageSrcSet(url: string, widths: ImageWidth[]): string | undefined {
+  if (!RESIZABLE_PHOTO.test(url)) {
+    return undefined;
+  }
+  return widths.map((width) => `${resolveImageUrl(url, width)} ${width}w`).join(', ');
+}
+
 export function getGoogleMapsApiKey(): string {
   return process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY ?? '';
 }

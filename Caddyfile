@@ -1,15 +1,15 @@
 {$DOMAIN:localhost} {
 	encode gzip
 	request_body {
-		max_size 120MB
+		max_size 520MB
 	}
 
 	reverse_proxy /api/* api:3001 {
 		flush_interval -1
 		transport http {
 			dial_timeout 30s
-			read_timeout 10m
-			write_timeout 10m
+			read_timeout 30m
+			write_timeout 30m
 		}
 	}
 
@@ -17,8 +17,8 @@
 		flush_interval -1
 		transport http {
 			dial_timeout 30s
-			read_timeout 10m
-			write_timeout 10m
+			read_timeout 30m
+			write_timeout 30m
 		}
 	}
 

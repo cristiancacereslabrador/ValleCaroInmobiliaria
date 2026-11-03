@@ -8,6 +8,10 @@ COPY apps/api apps/api
 RUN npm run build --workspace=apps/api
 
 FROM node:20-bookworm-slim
+# ffmpeg convierte los videos subidos a MP4 H.264 liviano.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./

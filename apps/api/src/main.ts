@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { createImageVariantsHandler } from './property-media/image-variants.handler';
+import { MediaStorageService } from './property-media/media-storage.service';
 
 function isLocalDevOrigin(origin: string): boolean {
   if (process.env.NODE_ENV === 'production') {
@@ -25,6 +27,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
   app.use(cookieParser());
+  app.use(
+    '/media/w',
+    createImageVariantsHandler(app.get(MediaStorageService).getStorageRoot()),
+  );
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -52,8 +58,8 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3001);
   const httpServer = app.getHttpServer();
-  httpServer.setTimeout(10 * 60 * 1000);
-  httpServer.headersTimeout = 11 * 60 * 1000;
-  httpServer.requestTimeout = 10 * 60 * 1000;
+  httpServer.setTimeout(30 * 60 * 1000);
+  httpServer.headersTimeout = 31 * 60 * 1000;
+  httpServer.requestTimeout = 30 * 60 * 1000;
 }
 bootstrap();

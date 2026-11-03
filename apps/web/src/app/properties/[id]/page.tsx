@@ -20,7 +20,7 @@ import {
   PROPERTY_AMENITY_FIELDS,
   propertyTypeLabel,
 } from '../../../lib/format';
-import { resolveMediaUrl } from '../../../lib/config';
+import { imageSrcSet, resolveImageUrl, resolveMediaUrl } from '../../../lib/config';
 import { PropertyMap } from '../../../components/PropertyMap';
 import { MediaUploader } from '../../../components/MediaUploader';
 import { MediaGallery } from '../../../components/MediaGallery';
@@ -222,9 +222,11 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           <PhotoCarousel
             variant="hero"
             images={galleryPhotos.map((item, i) => ({
-              src: resolveMediaUrl(item.url),
+              src: resolveImageUrl(item.url, 1080),
+              srcSet: imageSrcSet(item.url, [640, 1080, 1600]),
               alt: `${heading}, foto ${i + 1}`,
             }))}
+            sizes="100vw"
             index={photoIndex}
             onIndexChange={setPhotoIndex}
             paused={lightboxIndex !== null}
@@ -240,7 +242,12 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                   onClick={() => setPhotoIndex(i)}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={resolveMediaUrl(item.url)} alt="" />
+                  <img
+                    src={resolveImageUrl(item.url, 320)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </button>
               ))}
             </div>
@@ -296,7 +303,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={resolveMediaUrl(galleryPhotos[lightboxIndex].url)}
+            src={resolveImageUrl(galleryPhotos[lightboxIndex].url, 1600)}
             alt={`${heading}, foto ${lightboxIndex + 1} de ${galleryPhotos.length}`}
           />
           {galleryPhotos.length > 1 && (
@@ -388,7 +395,13 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                     .filter((item) => item.type === MediaType.VIDEO)
                     .map((item) => (
                       <div key={item.id} className="media-item">
-                        <video src={resolveMediaUrl(item.url)} controls muted />
+                        <video
+                          src={resolveMediaUrl(item.url)}
+                          controls
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
                       </div>
                     ))}
                 </div>

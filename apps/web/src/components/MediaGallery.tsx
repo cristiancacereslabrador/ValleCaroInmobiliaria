@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { MediaType, type PropertyMedia } from '../lib/api/types';
 import { deleteMedia, markCoverPhoto } from '../lib/api/media';
 import { ApiError } from '../lib/api/client';
-import { resolveMediaUrl } from '../lib/config';
+import { resolveImageUrl, resolveMediaUrl } from '../lib/config';
 
 interface MediaGalleryProps {
   propertyId: string;
@@ -76,9 +76,9 @@ export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps)
             {item.isCover && <span className="cover-badge">Portada</span>}
             {item.type === MediaType.PHOTO ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={resolveMediaUrl(item.url)} alt="" />
+              <img src={resolveImageUrl(item.url, 320)} alt="" loading="lazy" decoding="async" />
             ) : (
-              <video src={resolveMediaUrl(item.url)} controls muted />
+              <video src={resolveMediaUrl(item.url)} controls muted playsInline preload="metadata" />
             )}
             <div className="media-item-body">
               <div className="media-item-actions">

@@ -10,9 +10,11 @@ import {
   PROPERTY_AMENITY_FIELDS,
   propertyTypeLabel,
 } from '../lib/format';
-import { resolveMediaUrl } from '../lib/config';
+import { imageSrcSet, resolveImageUrl, type ImageWidth } from '../lib/config';
 import { SaveToListButton } from './SaveToListButton';
 import { PhotoCarousel } from './PhotoCarousel';
+
+const CARD_WIDTHS: ImageWidth[] = [320, 640, 1080];
 
 export function PropertyCard({
   property,
@@ -41,14 +43,21 @@ export function PropertyCard({
       return a.position - b.position;
     })
     .map((item, index) => ({
-      src: resolveMediaUrl(item.url),
+      src: resolveImageUrl(item.url, 640),
+      srcSet: imageSrcSet(item.url, CARD_WIDTHS),
       alt: `Foto ${index + 1} de ${heading}`,
     }));
   const images =
     photos.length > 0
       ? photos
       : property.coverPhotoUrl
-        ? [{ src: resolveMediaUrl(property.coverPhotoUrl), alt: `Foto de ${heading}` }]
+        ? [
+            {
+              src: resolveImageUrl(property.coverPhotoUrl, 640),
+              srcSet: imageSrcSet(property.coverPhotoUrl, CARD_WIDTHS),
+              alt: `Foto de ${heading}`,
+            },
+          ]
         : [];
 
   return (
@@ -59,6 +68,7 @@ export function PropertyCard({
             <PhotoCarousel
               variant="card"
               images={images}
+              sizes="(max-width: 700px) 100vw, 400px"
               href={`/properties/${property.id}`}
               intervalMs={5500}
               delayMs={400 + (property.id.charCodeAt(0) * 17 + property.id.length * 41) % 2400}

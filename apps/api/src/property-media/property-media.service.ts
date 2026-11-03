@@ -1,5 +1,13 @@
+import { randomUUID } from 'node:crypto';
+import { promises as fs } from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,6 +17,7 @@ import { MediaStorageService } from './media-storage.service';
 import { PropertiesService } from '../properties/properties.service';
 import { convertHeicToJpeg, isHeicUpload } from './heic-convert.util';
 import { applySniffedIdentity, sniffUploadKind } from './upload-sniff.util';
+import { transcodeVideoToMp4 } from './video-transcode.util';
 
 const ALLOWED_PHOTO_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif', '.heics'];
 const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.m4v'];
@@ -43,11 +52,43 @@ const MIME_TO_EXTENSION: Record<string, string> = {
   'video/x-m4v': '.m4v',
 };
 
+/**
+ * Archivo subido: en memoria (`buffer`) o ya escrito a disco por multer
+ * (`path`). Los videos llegan siempre por `path` para no cargar cientos de
+ * MB en RAM.
+ */
 export interface UploadableFile {
   originalname: string;
   mimetype: string;
   size: number;
-  buffer: Buffer;
+  buffer?: Buffer;
+  path?: string;
+}
+
+const SNIFF_BYTES = 64;
+
+async function readHead(file: UploadableFile): Promise<Buffer> {
+  if (file.buffer) {
+    return file.buffer.subarray(0, SNIFF_BYTES);
+  }
+  if (!file.path) {
+    return Buffer.alloc(0);
+  }
+  const handle = await fs.open(file.path, 'r');
+  try {
+    const head = Buffer.alloc(SNIFF_BYTES);
+    const { bytesRead } = await handle.read(head, 0, SNIFF_BYTES, 0);
+    return head.subarray(0, bytesRead);
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readAll(file: UploadableFile): Promise<Buffer> {
+  if (file.buffer) {
+    return file.buffer;
+  }
+  return file.path ? fs.readFile(file.path) : Buffer.alloc(0);
 }
 
 /**
@@ -57,6 +98,8 @@ export interface UploadableFile {
  */
 @Injectable()
 export class PropertyMediaService {
+  private readonly logger = new Logger(PropertyMediaService.name);
+
   constructor(
     @InjectRepository(PropertyMedia)
     private readonly mediaRepository: Repository<PropertyMedia>,
@@ -88,7 +131,16 @@ export class PropertyMediaService {
     const mediaType = this.resolveMediaType(normalizedFile, requestedType);
     this.validateFileSize(mediaType, normalizedFile.size);
 
-    const url = await this.mediaStorageService.saveFile(propertyId, normalizedFile);
+    let url: string;
+    if (mediaType === MediaType.VIDEO) {
+      url = await this.saveVideo(propertyId, normalizedFile);
+    } else {
+      url = await this.mediaStorageService.saveFile(propertyId, {
+        ...normalizedFile,
+        buffer: await readAll(normalizedFile),
+        path: undefined,
+      });
+    }
 
     const [position, photoCount] = await Promise.all([
       this.mediaRepository.count({ where: { propertyId } }),
@@ -196,7 +248,7 @@ export class PropertyMediaService {
    * se infiere tour360 automaticamente sin pedirlo explicitamente.
    */
   private async normalizeUploadFile(file: UploadableFile): Promise<UploadableFile> {
-    const kind = sniffUploadKind(file.buffer);
+    const kind = sniffUploadKind(await readHead(file));
     const identified = applySniffedIdentity(file, kind);
 
     if (kind !== 'heic' && !isHeicUpload(identified)) {
@@ -204,7 +256,7 @@ export class PropertyMediaService {
     }
 
     try {
-      const jpegBuffer = await convertHeicToJpeg(identified.buffer);
+      const jpegBuffer = await convertHeicToJpeg(await readAll(identified));
       const baseName = path.parse(identified.originalname || 'foto').name || 'foto';
       return {
         originalname: `${baseName}.jpg`,
@@ -216,6 +268,43 @@ export class PropertyMediaService {
       throw new BadRequestException(
         'No se pudo leer la foto HEIC. En el teléfono, elige «JPG» o comparte la imagen como archivo y vuelve a intentar.',
       );
+    }
+  }
+
+  /**
+   * Re-codifica el video a un MP4 H.264 liviano que reproduce cualquier
+   * movil. Si ffmpeg no esta disponible o falla, se guarda el original para
+   * no perder la subida.
+   */
+  private async saveVideo(propertyId: string, file: UploadableFile): Promise<string> {
+    const workDir = await fs.mkdtemp(path.join(os.tmpdir(), 'media-video-'));
+    try {
+      let inputPath = file.path;
+      if (!inputPath) {
+        inputPath = path.join(workDir, `input${path.extname(file.originalname)}`);
+        await fs.writeFile(inputPath, file.buffer ?? Buffer.alloc(0));
+      }
+
+      const outputPath = path.join(workDir, `${randomUUID()}.mp4`);
+      try {
+        await transcodeVideoToMp4(inputPath, outputPath);
+        return await this.mediaStorageService.saveFile(propertyId, {
+          originalname: 'video.mp4',
+          path: outputPath,
+        });
+      } catch (error) {
+        this.logger.warn(
+          `No se pudo convertir el video "${file.originalname}"; se guarda el original. ${
+            (error as Error).message
+          }`,
+        );
+        return await this.mediaStorageService.saveFile(propertyId, {
+          originalname: file.originalname,
+          path: inputPath,
+        });
+      }
+    } finally {
+      await fs.rm(workDir, { recursive: true, force: true });
     }
   }
 
@@ -265,7 +354,7 @@ export class PropertyMediaService {
   private validateFileSize(type: MediaType, sizeInBytes: number): void {
     const maxSizeMb = Number(
       type === MediaType.VIDEO
-        ? this.configService.get('MEDIA_MAX_VIDEO_SIZE_MB', 100)
+        ? this.configService.get('MEDIA_MAX_VIDEO_SIZE_MB', 500)
         : this.configService.get('MEDIA_MAX_IMAGE_SIZE_MB', 20),
     );
     const maxSizeBytes = maxSizeMb * 1024 * 1024;

@@ -4,7 +4,8 @@ export interface SniffableFile {
   originalname: string;
   mimetype: string;
   size: number;
-  buffer: Buffer;
+  buffer?: Buffer;
+  path?: string;
 }
 
 export type SniffedKind = 'jpeg' | 'png' | 'webp' | 'heic' | 'mp4' | 'webm' | 'unknown';

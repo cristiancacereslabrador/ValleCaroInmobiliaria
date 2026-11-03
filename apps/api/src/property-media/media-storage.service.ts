@@ -42,7 +42,7 @@ export class MediaStorageService {
 
   async saveFile(
     propertyId: string,
-    file: { originalname: string; buffer: Buffer },
+    file: { originalname: string; buffer?: Buffer; path?: string },
   ): Promise<string> {
     const propertyDir = path.join(this.storageRoot, propertyId);
     await fs.mkdir(propertyDir, { recursive: true });
@@ -51,7 +51,12 @@ export class MediaStorageService {
     const filename = `${randomUUID()}${extension}`;
     const filePath = path.join(propertyDir, filename);
 
-    await fs.writeFile(filePath, file.buffer);
+    if (file.path) {
+      // copyFile y no rename: el temporal puede estar en otro volumen.
+      await fs.copyFile(file.path, filePath);
+    } else {
+      await fs.writeFile(filePath, file.buffer ?? Buffer.alloc(0));
+    }
 
     return `${this.publicUrlPrefix}/${propertyId}/${filename}`;
   }
