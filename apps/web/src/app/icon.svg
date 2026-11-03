@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 512 512" role="img" aria-label="LVG">
-  <rect width="512" height="512" rx="116" fill="#121212"/>
-  <rect x="34" y="34" width="444" height="444" rx="88" fill="none" stroke="#BEAF87" stroke-opacity="0.45" stroke-width="5"/>
-  <g transform="translate(-6 0)">
-  <path d="M100 168 V344 H170 M194 168 L240 344 L286 168 M411.6 199.4 A53 88 0 1 0 424 276 V260 H378" fill="none" stroke="#BEAF87" stroke-width="28" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="2.5"/>
-  <rect x="100" y="384" width="324" height="6" fill="#BEAF87" fill-opacity="0.7"/>
+  <defs><clipPath id="lvg-tile"><rect width="512" height="512" rx="116"/></clipPath></defs>
+  <g clip-path="url(#lvg-tile)">
+    <rect width="512" height="512" fill="#121212"/>
+    <g transform="translate(256 262) scale(0.8) translate(-262 -186)"><clipPath id="lvg-sky"><path d="M-80 -80 H600 V222 L438 124 L262 20 L86 124 L-80 222 Z"/></clipPath><g clip-path="url(#lvg-sky)"><path d="M-60 170 L40 70 L110 120 L170 30 L240 90 M290 80 L350 30 L392 60 L440 4 L560 120" fill="none" stroke="#BEAF87" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4"/></g><path d="M60 132 L262 14 L464 132" fill="none" stroke="#121212" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4"/><path d="M60 132 L262 14 L464 132" fill="none" stroke="#F3EBD8" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4"/><path d="M245 58 H279 V90 H245 Z M262 58 V90 M245 74 H279" fill="none" stroke="#F3EBD8" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/><path d="M164 344 H100 V168" fill="none" stroke="#F3EBD8" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4"/><path d="M186 168 L230 344 L274 168" fill="none" stroke="#F3EBD8" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="1"/><path d="M424 168 H332 V344 H424 V262 H382" fill="none" stroke="#F3EBD8" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="4"/></g>
   </g>
 </svg>

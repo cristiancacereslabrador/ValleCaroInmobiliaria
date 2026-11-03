@@ -205,7 +205,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   }
   const activeAmenities = PROPERTY_AMENITY_FIELDS.filter(({ key }) => property[key] === true);
   const coreSpecs = [
-    { label: 'Construidos', value: property.surfaceM2 ? formatSurface(property.surfaceM2) : null },
+    { label: 'Construcción', value: property.surfaceM2 ? formatSurface(property.surfaceM2) : null },
     { label: 'Terreno', value: property.landSurfaceM2 ? formatSurface(property.landSurfaceM2) : null },
     { label: 'Habitaciones', value: property.bedrooms !== null ? formatNullableNumber(property.bedrooms) : null },
     { label: 'Baños', value: property.bathrooms !== null ? formatNullableNumber(property.bathrooms) : null },
@@ -368,7 +368,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
 
           {activeAmenities.length > 0 && (
             <div className="section section-flush">
-              <h2>Amenidades</h2>
+              <h2>Comodidades</h2>
               <ul className="amenity-chips">
                 {activeAmenities.map(({ key, label }) => (
                   <li key={key}>{label}</li>
@@ -382,14 +382,14 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
 
           {isStaff ? (
             <div className="section">
-              <h2>Fotos y vídeos</h2>
+              <h2>Fotos y videos</h2>
               <MediaUploader propertyId={property.id} onUploaded={(item) => setMedia((prev) => [...prev, item])} />
               <MediaGallery propertyId={property.id} media={media} onChange={setMedia} />
             </div>
           ) : (
             publicPhotos.some((item) => item.type === MediaType.VIDEO) && (
               <div className="section">
-                <h2>Vídeos</h2>
+                <h2>Videos</h2>
                 <div className="media-gallery">
                   {publicPhotos
                     .filter((item) => item.type === MediaType.VIDEO)

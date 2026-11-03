@@ -18,7 +18,7 @@ const BEDROOMS_TOLERANCE = 1;
 
 const ORIENTATIVE_DISCLAIMER =
   'Estimación orientativa basada en captaciones comparables ya publicadas en este portal. ' +
-  'No constituye una tasación oficial ni un informe pericial.';
+  'No constituye un avalúo oficial ni un informe pericial.';
 
 interface RawComparableRow {
   price: string;
@@ -48,7 +48,7 @@ export class PropertyValuationEstimatorService {
     // se valida aqui explicitamente.
     if (!dto.city && !dto.postalCode) {
       throw new BadRequestException(
-        'Debe indicar ciudad o código postal para poder buscar comparables en la zona',
+        'Debe indicar ciudad o zona postal para poder buscar comparables en la zona',
       );
     }
 

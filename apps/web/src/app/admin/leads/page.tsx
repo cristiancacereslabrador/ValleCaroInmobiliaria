@@ -13,7 +13,7 @@ const STATUS_OPTIONS: LeadStatus[] = ['nuevo', 'contactado', 'visita', 'cerrado'
 const ORIGIN_LABELS: Record<LeadOrigin, string> = {
   web: 'Web',
   whatsapp: 'WhatsApp',
-  valuation: 'Tasación',
+  valuation: 'Avalúo',
   sell_form: 'Quiero vender',
 };
 
@@ -45,7 +45,7 @@ function LeadsInbox() {
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : 'No se pudieron cargar los leads.');
+          setError(err instanceof ApiError ? err.message : 'No se pudieron cargar las solicitudes.');
         }
       })
       .finally(() => {
@@ -68,7 +68,7 @@ function LeadsInbox() {
   return (
     <main className="page">
       <div className="page-header">
-        <h1>Leads</h1>
+        <h1>Solicitudes</h1>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}

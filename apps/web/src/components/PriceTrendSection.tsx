@@ -122,7 +122,7 @@ export function PriceTrendSection({ propertyId }: PriceTrendSectionProps) {
       {!isLoading && result && !result.available && (
         <p className="alert alert-info">
           {result.reason === 'no-zone'
-            ? 'Esta propiedad no tiene ciudad y código postal registrados, así que no se puede calcular la tendencia de su zona.'
+            ? 'Esta propiedad no tiene ciudad y zona postal registrados, así que no se puede calcular la tendencia de su zona.'
             : 'Todavía no hay datos suficientes para mostrar una tendencia fiable en esta zona.'}
         </p>
       )}

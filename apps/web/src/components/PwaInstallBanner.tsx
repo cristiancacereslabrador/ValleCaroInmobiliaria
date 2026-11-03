@@ -94,7 +94,7 @@ export function PwaInstallBanner() {
         {mode === 'inapp' ? (
           <p>
             Estás dentro de WhatsApp u otra app. Ábrelo en el navegador e instálalo en el teléfono
-            para subir fotos y vídeos sin que se corte al cambiar de chat.
+            para subir fotos y videos sin que se corte al cambiar de chat.
           </p>
         ) : mode === 'ios' ? (
           <p>

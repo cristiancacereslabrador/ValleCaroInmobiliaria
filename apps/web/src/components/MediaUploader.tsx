@@ -148,7 +148,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
     } else if (!isStandaloneDisplay()) {
       setHint('En el teléfono usa Galería o Tomar foto. Puedes marcar varias a la vez.');
     } else {
-      setHint('Puedes marcar varias fotos o vídeos. Si sales un momento, al volver se reintenta.');
+      setHint('Puedes marcar varias fotos o videos. Si sales un momento, al volver se reintenta.');
     }
   }, []);
 
@@ -181,7 +181,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
     // Despues de drainQueue, que limpia el error al arrancar.
     if (tooBig.length > 0) {
       setError(
-        `${tooBig.map((file) => file.name || 'El vídeo').join(', ')} pesa más de ${MAX_VIDEO_MB} MB. ` +
+        `${tooBig.map((file) => file.name || 'El video').join(', ')} pesa más de ${MAX_VIDEO_MB} MB. ` +
           'Recórtalo o grábalo en 1080p (no 4K) y vuelve a intentarlo.',
       );
     }
@@ -205,8 +205,8 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
   return (
     <div>
       <p className="page-subtitle">
-        En Android: Galería, Tomar foto o Grabar vídeo. JPG, HEIC, PNG, WebP, MP4 y MOV (vídeos
-        hasta {MAX_VIDEO_MB} MB). Las fotos grandes se achican solas y los vídeos se convierten a
+        En Android: Galería, Tomar foto o Grabar video. JPG, HEIC, PNG, WebP, MP4 y MOV (videos
+        hasta {MAX_VIDEO_MB} MB). Las fotos grandes se achican solas y los videos se convierten a
         un formato liviano que se ve en cualquier teléfono.
         {hint ? ` ${hint}` : ''}
       </p>
@@ -247,7 +247,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
               onChange={handleVideoCameraChange}
             />
             <label htmlFor="media-video-camera-input" className="btn btn-secondary">
-              Grabar vídeo
+              Grabar video
             </label>
           </>
         )}
@@ -263,7 +263,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
         {isUploading && (
           <span className="spinner-text">
             {currentIsVideo && progress === 100
-              ? `Procesando vídeo${currentName ? ` ${currentName}` : ''}… puede tardar un par de minutos`
+              ? `Procesando video${currentName ? ` ${currentName}` : ''}… puede tardar un par de minutos`
               : `Subiendo${currentName ? ` ${currentName}` : ''}${
                   progress !== null ? ` · ${progress}%` : '…'
                 }`}

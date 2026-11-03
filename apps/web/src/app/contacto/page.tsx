@@ -71,7 +71,7 @@ export default function ContactPage() {
           )}
           {settings?.email && (
             <p>
-              <strong>Email</strong>
+              <strong>Correo</strong>
               <br />
               <a href={`mailto:${settings.email}`}>{settings.email}</a>
             </p>
@@ -107,7 +107,7 @@ export default function ContactPage() {
           <h2>Agenda una visita</h2>
           <p>
             Deja tus datos y te respondemos. El mensaje llega al correo de la asesora y queda en el
-            panel de leads.
+            panel de solicitudes.
           </p>
           <LeadForm />
           {whatsapp && (

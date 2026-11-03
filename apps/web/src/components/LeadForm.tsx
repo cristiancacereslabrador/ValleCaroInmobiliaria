@@ -88,7 +88,7 @@ export function LeadForm({ propertyId }: { propertyId?: string }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="lead-email">Email</label>
+          <label htmlFor="lead-email">Correo electrónico</label>
           <input
             id="lead-email"
             type="email"

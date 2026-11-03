@@ -119,7 +119,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     pathname.startsWith('/captacion')
       ? `Hola, quiero vender o alquilar con ${businessName}.`
       : pathname.startsWith('/valuation')
-        ? `Hola, quiero tasar un inmueble con ${businessName}.`
+        ? `Hola, quiero un avalúo de mi inmueble con ${businessName}.`
         : `Hola, me interesa una propiedad de ${businessName}.`;
 
   const publicMoreActions: BottomSheetAction[] = [
@@ -163,7 +163,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
           </Link>
           <nav>
             <Link href="/admin">Mis propiedades</Link>
-            <Link href="/admin/leads">Leads</Link>
+            <Link href="/admin/leads">Solicitudes</Link>
             <Link href="/admin/ajustes">Ajustes</Link>
             <Link href="/" className="btn btn-secondary">
               Ver sitio
@@ -210,7 +210,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
               Quiero vender
             </Link>
             <Link href="/valuation" className={pathname.startsWith('/valuation') ? 'is-active' : undefined}>
-              Solicitar tasación
+              Solicitar avalúo
             </Link>
             <Link href="/nosotros" className={pathname.startsWith('/nosotros') ? 'is-active' : undefined}>
               Nosotros
@@ -285,7 +285,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
                 <Link href="/captacion">Quiero vender</Link>
               </p>
               <p>
-                <Link href="/valuation">Solicitar tasación</Link>
+                <Link href="/valuation">Solicitar avalúo</Link>
               </p>
               <p>
                 <Link href="/nosotros">Nosotros</Link>
@@ -314,7 +314,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
           items={[
             { href: '/admin', label: 'Propiedades', icon: 'list', exact: true },
             { href: '/admin/propiedades/nueva', label: 'Nueva', icon: 'add' },
-            { href: '/admin/leads', label: 'Leads', icon: 'leads' },
+            { href: '/admin/leads', label: 'Solicitudes', icon: 'leads' },
             { href: '/admin/ajustes', label: 'Ajustes', icon: 'settings' },
           ]}
           moreTitle={`Panel · ${businessName}`}
@@ -326,7 +326,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
           items={[
             { href: '/', label: 'Inicio', icon: 'home', exact: true },
             { href: '/captacion', label: 'Vender', icon: 'sell' },
-            { href: '/valuation', label: 'Tasar', icon: 'valuation' },
+            { href: '/valuation', label: 'Avalúo', icon: 'valuation' },
             { href: '/contacto', label: 'Contacto', icon: 'contact' },
           ]}
           moreTitle={businessName}

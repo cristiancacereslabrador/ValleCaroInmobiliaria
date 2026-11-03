@@ -213,7 +213,7 @@ function ListingMapLoaded({
         </button>
         {isDrawing && (
           <span className="map-drawing-hint">
-            Haz clic en el mapa para marcar vértices. Con 3 o más puntos, pulsa Cerrar área o haz doble clic.
+            Haz clic en el mapa para marcar vértices. Con 3 o más puntos, presiona Cerrar área o haz doble clic.
           </span>
         )}
       </div>

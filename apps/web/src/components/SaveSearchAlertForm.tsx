@@ -66,7 +66,7 @@ export function SaveSearchAlertForm({ filters }: SaveSearchAlertFormProps) {
       </p>
       <form className="save-search-alert-form" onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="alert-email">Email</label>
+          <label htmlFor="alert-email">Correo electrónico</label>
           <input
             id="alert-email"
             type="email"

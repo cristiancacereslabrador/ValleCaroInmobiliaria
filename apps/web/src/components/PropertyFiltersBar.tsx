@@ -142,7 +142,7 @@ export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProp
         </div>
 
       <div className="field">
-        <label htmlFor="filter-type">Tipo de vivienda</label>
+        <label htmlFor="filter-type">Tipo de inmueble</label>
         <select
           id="filter-type"
           value={filters.type ?? ''}
@@ -288,7 +288,7 @@ export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProp
 
           <TriStateFilterSelect
             id="filter-needs-renovation"
-            label="Necesita reforma"
+            label="Necesita remodelación"
             value={filters.needsRenovation}
             onChange={(value) => setTriState('needsRenovation', value)}
           />

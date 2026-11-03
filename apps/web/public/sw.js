@@ -1,6 +1,6 @@
 /* Service worker mínimo: cumple el criterio de instalación PWA.
    Red primero; no cachea API ni subidas, para no romper captación. */
-const CACHE = 'portal-captaciones-v2';
+const CACHE = 'portal-captaciones-v3';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());

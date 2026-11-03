@@ -8,7 +8,7 @@ const TYPE_LABELS: Record<PropertyType, string> = {
   [PropertyType.PENTHOUSE]: 'Penthouse',
   [PropertyType.STUDIO]: 'Estudio',
   [PropertyType.COMMERCIAL]: 'Local comercial',
-  [PropertyType.WAREHOUSE]: 'Galpón / Bodega',
+  [PropertyType.WAREHOUSE]: 'Galpón',
   [PropertyType.OFFICE]: 'Oficina',
   [PropertyType.LAND]: 'Terreno',
   [PropertyType.FARM]: 'Finca',

@@ -38,11 +38,11 @@ export class PropertyLeadsService {
       // WHATSAPP sin ficha = tracking del FAB / CTAs globales.
       if (origin !== LeadOrigin.WEB && origin !== LeadOrigin.WHATSAPP) {
         throw new BadRequestException(
-          'Indica una propiedad, o usa el formulario de captación o tasación.',
+          'Indica una propiedad, o usa el formulario de captación o avalúo.',
         );
       }
       if (origin === LeadOrigin.WHATSAPP && !dto.message) {
-        throw new BadRequestException('Indica una propiedad, o usa el formulario de captación o tasación.');
+        throw new BadRequestException('Indica una propiedad, o usa el formulario de captación o avalúo.');
       }
     }
 
@@ -117,13 +117,13 @@ export class PropertyLeadsService {
     const originLabel: Record<LeadOrigin, string> = {
       [LeadOrigin.WEB]: 'Formulario web',
       [LeadOrigin.WHATSAPP]: 'WhatsApp',
-      [LeadOrigin.VALUATION]: 'Tasación',
+      [LeadOrigin.VALUATION]: 'Avalúo',
       [LeadOrigin.SELL_FORM]: 'Quiero vender / alquilar',
     };
     const lines = [
       `Nuevo lead (${originLabel[lead.origin] ?? lead.origin})`,
       `Nombre: ${lead.name}`,
-      lead.email ? `Email: ${lead.email}` : null,
+      lead.email ? `Correo: ${lead.email}` : null,
       lead.phone ? `Teléfono: ${lead.phone}` : null,
       property ? `Propiedad: ${property.title} (${property.id})` : 'Sin ficha asociada',
       lead.visitAt ? `Visita pedida: ${lead.visitAt.toISOString()}` : null,

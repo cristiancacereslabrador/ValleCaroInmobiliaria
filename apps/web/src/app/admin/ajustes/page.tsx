@@ -205,7 +205,7 @@ function BrokerSettingsForm() {
               />
             </div>
             <div className="field">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Correo electrónico</label>
               <input
                 id="email"
                 type="email"

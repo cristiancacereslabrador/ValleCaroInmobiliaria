@@ -19,6 +19,7 @@ const outputs = [
 ];
 
 writeFileSync(join(web, 'src/app/icon.svg'), logoSvg({ size: 64 }));
+writeFileSync(join(web, 'public/brand/logo-lvg.svg'), logoSvg({ size: 512 }));
 
 for (const { file, size, variant } of outputs) {
   await sharp(Buffer.from(logoSvg({ size: 512, variant })), { density: 72 * (size / 512) * 4 })

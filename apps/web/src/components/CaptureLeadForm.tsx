@@ -77,7 +77,7 @@ export function CaptureLeadForm() {
           />
         </div>
         <div className="field">
-          <label htmlFor="capture-email">Email</label>
+          <label htmlFor="capture-email">Correo electrónico</label>
           <input
             id="capture-email"
             type="email"

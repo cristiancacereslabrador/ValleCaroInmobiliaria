@@ -9,7 +9,7 @@ export default function ValuationPage() {
   return (
     <main className="page">
       <div className="page-header">
-        <h1>Solicitar tasación</h1>
+        <h1>Solicitar avalúo</h1>
       </div>
       <p className="page-subtitle">
         Deja el tipo de inmueble y tu contacto. Un asesor visitará la propiedad, la analizará y te

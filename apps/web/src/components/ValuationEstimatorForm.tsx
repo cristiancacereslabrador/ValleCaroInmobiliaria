@@ -34,11 +34,11 @@ const EMPTY_FORM: FormState = {
 
 function buildLeadMessage(form: FormState): string {
   const parts = [
-    `Solicitud de tasación (${form.intent === 'rent' ? 'alquiler' : 'venta'}).`,
+    `Solicitud de avalúo (${form.intent === 'rent' ? 'alquiler' : 'venta'}).`,
     form.type ? `Tipo: ${propertyTypeLabel(form.type)}.` : null,
     form.city.trim() ? `Ciudad: ${form.city.trim()}.` : null,
-    form.postalCode.trim() ? `Código postal: ${form.postalCode.trim()}.` : null,
-    form.surfaceM2.trim() ? `Superficie: ${form.surfaceM2.trim()} m².` : null,
+    form.postalCode.trim() ? `Zona postal: ${form.postalCode.trim()}.` : null,
+    form.surfaceM2.trim() ? `Metros: ${form.surfaceM2.trim()} m².` : null,
     form.bedrooms.trim() ? `Habitaciones: ${form.bedrooms.trim()}.` : null,
     form.status.trim() ? `Estado: ${form.status.trim()}.` : null,
     'El interesado no recibió precio en la web: espera visita, análisis e informe.',
@@ -121,7 +121,7 @@ export function ValuationEstimatorForm() {
           />
         </div>
         <div className="field">
-          <label htmlFor="valuation-email">Email</label>
+          <label htmlFor="valuation-email">Correo electrónico</label>
           <input
             id="valuation-email"
             type="email"
@@ -139,7 +139,7 @@ export function ValuationEstimatorForm() {
           />
         </div>
         <div className="field">
-          <label htmlFor="valuation-type">Tipo de vivienda *</label>
+          <label htmlFor="valuation-type">Tipo de inmueble *</label>
           <select
             id="valuation-type"
             value={form.type}
@@ -178,7 +178,7 @@ export function ValuationEstimatorForm() {
         </div>
 
         <div className="field">
-          <label htmlFor="valuation-postal-code">Código postal</label>
+          <label htmlFor="valuation-postal-code">Zona postal</label>
           <input
             id="valuation-postal-code"
             type="text"
@@ -189,7 +189,7 @@ export function ValuationEstimatorForm() {
         </div>
 
         <div className="field">
-          <label htmlFor="valuation-surface">Superficie (m²)</label>
+          <label htmlFor="valuation-surface">Metros (m²)</label>
           <input
             id="valuation-surface"
             type="number"
@@ -216,7 +216,7 @@ export function ValuationEstimatorForm() {
           <input
             id="valuation-status"
             type="text"
-            placeholder="p. ej. buen estado, a reformar…"
+            placeholder="p. ej. buen estado, para remodelar…"
             value={form.status}
             onChange={(event) => setField('status', event.target.value)}
           />
@@ -225,7 +225,7 @@ export function ValuationEstimatorForm() {
 
       <div className="form-actions">
         <button type="submit" className="btn" disabled={isSubmitting}>
-          {isSubmitting ? 'Enviando…' : 'Solicitar tasación'}
+          {isSubmitting ? 'Enviando…' : 'Solicitar avalúo'}
         </button>
       </div>
     </form>

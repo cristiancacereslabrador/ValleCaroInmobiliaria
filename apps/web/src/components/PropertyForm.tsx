@@ -341,7 +341,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
         </div>
 
         <div className="field">
-          <label htmlFor="surfaceM2">Superficie construida (m²)</label>
+          <label htmlFor="surfaceM2">Metros de construcción (m²)</label>
           <input
             id="surfaceM2"
             type="number"
@@ -353,7 +353,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
         </div>
 
         <div className="field">
-          <label htmlFor="landSurfaceM2">Superficie de terreno (m²)</label>
+          <label htmlFor="landSurfaceM2">Metros de terreno (m²)</label>
           <input
             id="landSurfaceM2"
             type="number"
@@ -442,7 +442,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
         </div>
 
         <div className="field" style={{ gridColumn: '1 / -1' }}>
-          <label htmlFor="urbanization">Zona (urbanización o barrio)</label>
+          <label htmlFor="urbanization">Urbanización o sector</label>
           <input
             id="urbanization"
             type="text"
@@ -494,7 +494,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
         </div>
 
         <div className="field">
-          <label htmlFor="postalCode">Código postal</label>
+          <label htmlFor="postalCode">Zona postal</label>
           <input
             id="postalCode"
             type="text"
@@ -543,7 +543,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
         </div>
 
         <div className="field">
-          <label htmlFor="needsRenovation">Necesita reforma</label>
+          <label htmlFor="needsRenovation">Necesita remodelación</label>
           <select
             id="needsRenovation"
             value={form.needsRenovation}
@@ -559,7 +559,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
       </div>
 
       <fieldset className="amenity-fieldset">
-        <legend>Amenidades</legend>
+        <legend>Comodidades</legend>
         <div className="amenity-grid">
           {PROPERTY_AMENITY_FIELDS.map(({ key, label }) => (
             <label key={key} className="amenity-check" htmlFor={`amenity-${key}`}>
@@ -577,7 +577,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
 
       {mode === 'edit' && propertyId && (
         <div className="section" style={{ marginTop: '1.5rem' }}>
-          <h2>Fotos y vídeos</h2>
+          <h2>Fotos y videos</h2>
           <p className="page-subtitle">
             La primera foto se usa como portada. Marca «tour 360°» solo si la imagen es panorámica.
           </p>
@@ -591,7 +591,7 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
 
       {mode === 'create' && (
         <p className="page-subtitle">
-          Al crear la ficha pasarás a Editar, donde se suben fotos y vídeos (también desde el teléfono).
+          Al crear la ficha pasarás a Editar, donde se suben fotos y videos (también desde el teléfono).
         </p>
       )}
 

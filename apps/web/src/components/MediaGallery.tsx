@@ -64,7 +64,7 @@ export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps)
   }
 
   if (photosAndVideos.length === 0) {
-    return <p className="spinner-text">Todavía no se ha subido ninguna foto o vídeo.</p>;
+    return <p className="spinner-text">Todavía no se ha subido ninguna foto o video.</p>;
   }
 
   return (
