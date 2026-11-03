@@ -78,7 +78,7 @@ export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps)
               // eslint-disable-next-line @next/next/no-img-element
               <img src={resolveImageUrl(item.url, 320)} alt="" loading="lazy" decoding="async" />
             ) : (
-              <video src={resolveMediaUrl(item.url)} controls muted playsInline preload="metadata" />
+              <video src={resolveMediaUrl(item.url)} controls playsInline preload="metadata" />
             )}
             <div className="media-item-body">
               <div className="media-item-actions">

@@ -398,7 +398,6 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                         <video
                           src={resolveMediaUrl(item.url)}
                           controls
-                          muted
                           playsInline
                           preload="metadata"
                         />
