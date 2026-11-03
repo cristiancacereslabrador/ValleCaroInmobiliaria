@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Outfit } from 'next/font/google';
 import './globals.css';
+import './mobile-app.css';
 import 'pannellum/build/pannellum.css';
 import { SiteChrome } from '../components/SiteChrome';
 import { PwaRegister } from '../components/PwaRegister';

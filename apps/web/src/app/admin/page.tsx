@@ -89,14 +89,14 @@ function AdminDashboard() {
                 const busy = pendingId === property.id;
                 return (
                   <tr key={property.id}>
-                    <td>
+                    <td className="admin-cell-title">
                       <Link href={`/properties/${property.id}`}>{title}</Link>
                     </td>
-                    <td>{propertyTypeLabel(property.type)}</td>
-                    <td>{operationTypeLabel(property.operationType)}</td>
-                    <td>{formatPrice(property.price)}</td>
-                    <td>{listingStatusLabel(property.listingStatus)}</td>
-                    <td>
+                    <td data-label="Tipo">{propertyTypeLabel(property.type)}</td>
+                    <td data-label="Operación">{operationTypeLabel(property.operationType)}</td>
+                    <td data-label="Precio">{formatPrice(property.price)}</td>
+                    <td data-label="Estado">{listingStatusLabel(property.listingStatus)}</td>
+                    <td className="admin-cell-actions">
                       <div className="admin-row-actions">
                         {property.listingStatus !== ListingStatus.PUBLISHED && (
                           <button

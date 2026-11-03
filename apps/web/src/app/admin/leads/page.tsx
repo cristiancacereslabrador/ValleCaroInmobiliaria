@@ -99,8 +99,8 @@ function LeadsInbox() {
                 const contact = [lead.email, lead.phone].filter(Boolean).join(' · ') || '—';
                 return (
                   <tr key={lead.id}>
-                    <td>{new Date(lead.createdAt).toLocaleString('es-VE')}</td>
-                    <td>
+                    <td data-label="Fecha">{new Date(lead.createdAt).toLocaleString('es-VE')}</td>
+                    <td data-label="Origen">
                       <span className={`lead-origin lead-origin-${lead.origin}`}>
                         {ORIGIN_LABELS[lead.origin] ?? lead.origin}
                       </span>
@@ -108,7 +108,7 @@ function LeadsInbox() {
                         <span className="lead-intent">{INTENT_LABELS[lead.intent] ?? lead.intent}</span>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Estado">
                       <select
                         className={`lead-status lead-status-${lead.status}`}
                         value={lead.status}
@@ -122,7 +122,7 @@ function LeadsInbox() {
                         ))}
                       </select>
                     </td>
-                    <td>
+                    <td data-label="Propiedad">
                       {lead.propertyId && propertyLabel ? (
                         <Link href={`/properties/${lead.propertyId}`}>{propertyLabel}</Link>
                       ) : (
@@ -134,9 +134,9 @@ function LeadsInbox() {
                         </div>
                       )}
                     </td>
-                    <td>{lead.name}</td>
-                    <td>{contact}</td>
-                    <td>{lead.message}</td>
+                    <td className="admin-cell-title">{lead.name}</td>
+                    <td data-label="Contacto">{contact}</td>
+                    <td data-label="Mensaje">{lead.message}</td>
                   </tr>
                 );
               })}

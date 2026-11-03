@@ -13,6 +13,8 @@ import { FALLBACK_PORTAL_LEGAL, FALLBACK_PORTAL_NAME, FALLBACK_PORTAL_SLOGAN } f
 import { PwaInstallBanner } from './PwaInstallBanner';
 import { WhatsAppCta } from './WhatsAppCta';
 import { SocialLinks } from './SocialLinks';
+import { BrandMark } from './BrandMark';
+import { BottomNav, type BottomSheetAction } from './BottomNav';
 
 function isAdminPath(pathname: string): boolean {
   return pathname === '/admin' || pathname.startsWith('/admin/');
@@ -27,11 +29,6 @@ function contrastOn(hex: string): string {
   const b = parseInt(full.slice(4, 6), 16);
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
   return yiq < 150 ? '#f7efe0' : '#121212';
-}
-
-function brandInitials(name: string): string {
-  const first = name.trim().split(/\s+/).filter(Boolean)[0] ?? 'VC';
-  return first.slice(0, 2).toUpperCase();
 }
 
 export function SiteChrome({ children }: { children: ReactNode }) {
@@ -125,6 +122,32 @@ export function SiteChrome({ children }: { children: ReactNode }) {
         ? `Hola, quiero tasar un inmueble con ${businessName}.`
         : `Hola, me interesa una propiedad de ${businessName}.`;
 
+  const publicMoreActions: BottomSheetAction[] = [
+    { label: 'Nosotros', icon: 'about', href: '/nosotros' },
+    ...(whatsapp
+      ? [
+          {
+            label: 'Hablar con un asesor',
+            icon: 'chat' as const,
+            href: buildWhatsAppLink(whatsapp, `Hola, escribo a ${businessName}.`),
+            external: true,
+          },
+        ]
+      : []),
+    user
+      ? { label: 'Panel del asesor', icon: 'settings', href: '/admin' }
+      : { label: 'Acceso asesor', icon: 'lock', href: '/admin/login' },
+  ];
+  const adminMoreActions: BottomSheetAction[] = [
+    { label: 'Ver sitio público', icon: 'web', href: '/' },
+    {
+      label: isLoggingOut ? 'Saliendo…' : 'Cerrar sesión',
+      icon: 'logout',
+      onClick: () => void handleLogout(),
+      disabled: isLoggingOut,
+    },
+  ];
+
   return (
     <>
       {showAdminHeader ? (
@@ -134,9 +157,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={resolveMediaUrl(settings.logoUrl)} alt="" className="brand-logo" />
             ) : (
-              <span className="brand-mark" aria-hidden="true">
-                {brandInitials(businessName)}
-              </span>
+              <BrandMark className="brand-mark" />
             )}
             <span>Panel · {businessName}</span>
           </Link>
@@ -168,9 +189,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={resolveMediaUrl(settings.logoUrl)} alt="" className="brand-logo" />
             ) : (
-              <span className="brand-mark" aria-hidden="true">
-                {brandInitials(businessName)}
-              </span>
+              <BrandMark className="brand-mark" />
             )}
             <span>{businessName}</span>
           </Link>
@@ -287,6 +306,32 @@ export function SiteChrome({ children }: { children: ReactNode }) {
             {settings?.footerLegal || FALLBACK_PORTAL_LEGAL}
           </p>
         </footer>
+      )}
+
+      {showAdminHeader ? (
+        <BottomNav
+          ariaLabel="Panel"
+          items={[
+            { href: '/admin', label: 'Propiedades', icon: 'list', exact: true },
+            { href: '/admin/propiedades/nueva', label: 'Nueva', icon: 'add' },
+            { href: '/admin/leads', label: 'Leads', icon: 'leads' },
+            { href: '/admin/ajustes', label: 'Ajustes', icon: 'settings' },
+          ]}
+          moreTitle={`Panel · ${businessName}`}
+          moreActions={adminMoreActions}
+        />
+      ) : (
+        <BottomNav
+          ariaLabel="Secciones"
+          items={[
+            { href: '/', label: 'Inicio', icon: 'home', exact: true },
+            { href: '/captacion', label: 'Vender', icon: 'sell' },
+            { href: '/valuation', label: 'Tasar', icon: 'valuation' },
+            { href: '/contacto', label: 'Contacto', icon: 'contact' },
+          ]}
+          moreTitle={businessName}
+          moreActions={publicMoreActions}
+        />
       )}
 
       {showWhatsAppFab && (

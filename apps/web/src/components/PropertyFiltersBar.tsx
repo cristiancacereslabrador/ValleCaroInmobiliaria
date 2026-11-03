@@ -58,6 +58,18 @@ function TriStateFilterSelect({
  */
 export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const activeCount = [
+    filters.type,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.minBedrooms,
+    filters.municipality,
+    filters.state,
+    filters.hasElevator,
+    filters.groundFloor,
+    filters.needsRenovation,
+  ].filter((value) => value !== undefined).length;
 
   function setTriState(field: TriStateField, value: boolean | undefined) {
     onChange({ ...filters, [field]: value });
@@ -88,6 +100,46 @@ export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProp
           Alquilar
         </button>
       </div>
+
+      <div className="field field-search">
+        <label htmlFor="filter-urbanization">Zona</label>
+        <input
+          id="filter-urbanization"
+          type="search"
+          enterKeyHint="search"
+          placeholder="Buscar zona o urbanización"
+          value={filters.urbanization ?? ''}
+          onChange={(event) =>
+            onChange({
+              ...filters,
+              urbanization: event.target.value.trim() === '' ? undefined : event.target.value,
+            })
+          }
+        />
+      </div>
+
+      <button
+        type="button"
+        className="btn btn-secondary filters-sheet-toggle"
+        aria-expanded={sheetOpen}
+        onClick={() => setSheetOpen(true)}
+      >
+        Filtros{activeCount > 0 ? ` · ${activeCount}` : ''}
+      </button>
+
+      {sheetOpen && (
+        <div className="filters-sheet-backdrop" onClick={() => setSheetOpen(false)} aria-hidden="true" />
+      )}
+
+      {/* En escritorio es display: contents (los campos siguen en la barra); en
+          movil es una hoja inferior que se abre con el boton Filtros. */}
+      <div className={`filters-more${sheetOpen ? ' is-open' : ''}`}>
+        <div className="filters-sheet-head">
+          <span>Filtros</span>
+          <button type="button" className="btn btn-ghost" onClick={() => setSheetOpen(false)}>
+            Cerrar
+          </button>
+        </div>
 
       <div className="field">
         <label htmlFor="filter-type">Tipo de vivienda</label>
@@ -180,22 +232,6 @@ export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProp
         />
       </div>
 
-      <div className="field">
-        <label htmlFor="filter-urbanization">Zona</label>
-        <input
-          id="filter-urbanization"
-          type="text"
-          placeholder="Urbanización o barrio"
-          value={filters.urbanization ?? ''}
-          onChange={(event) =>
-            onChange({
-              ...filters,
-              urbanization: event.target.value.trim() === '' ? undefined : event.target.value,
-            })
-          }
-        />
-      </div>
-
       <div className="filters-bar-actions">
         <span className="filters-actions-label" aria-hidden="true">
           Acciones
@@ -258,6 +294,13 @@ export function PropertyFiltersBar({ filters, onChange }: PropertyFiltersBarProp
           />
         </div>
       )}
+
+        <div className="filters-sheet-foot">
+          <button type="button" className="btn" onClick={() => setSheetOpen(false)}>
+            Ver propiedades
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

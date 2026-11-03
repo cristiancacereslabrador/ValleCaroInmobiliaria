@@ -1,0 +1,549 @@
+/* ------------------------------------------------------------------
+   Modo app movil: barra inferior, hojas inferiores, filtros compactos y
+   controles a tamano de dedo. Se importa despues de globals.css en
+   layout.tsx para poder ajustar sus reglas.
+   ------------------------------------------------------------------ */
+
+.site-header .brand-mark {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.bottom-nav,
+.filters-sheet-toggle,
+.filters-sheet-head,
+.filters-sheet-foot,
+.filters-sheet-backdrop {
+  display: none;
+}
+
+.filters-more {
+  display: contents;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bottom-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(18, 18, 18, 0.45);
+  animation: fade-in 0.18s ease-out;
+}
+
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 61;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 0.5rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+  animation: sheet-up 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bottom-sheet-handle {
+  display: block;
+  width: 2.5rem;
+  height: 0.28rem;
+  margin: 0.2rem auto 0.8rem;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.bottom-sheet-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  padding: 0 0.5rem 0.6rem;
+}
+
+.bottom-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bottom-sheet-list a,
+.bottom-sheet-list button {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bottom-sheet-list a:active,
+.bottom-sheet-list button:active {
+  background: rgba(190, 175, 135, 0.22);
+}
+
+.bottom-sheet-list svg {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+body.has-sheet-open {
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --bottom-nav-h: 4.1rem;
+    --bottom-safe: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+    --control-height: 2.75rem;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    padding-bottom: var(--bottom-safe);
+  }
+
+  /* Cabecera tipo barra de app: logo + nombre; la navegacion va abajo. */
+  .site-header {
+    flex-wrap: nowrap;
+    padding: calc(0.55rem + env(safe-area-inset-top)) 1rem 0.55rem;
+  }
+
+  .site-header .nav-toggle,
+  .site-header nav {
+    display: none !important;
+  }
+
+  .site-header a.brand {
+    font-size: 1.2rem;
+    min-width: 0;
+  }
+
+  /* El dorado sobre fondo claro se lee mal en pantallas pequenas. */
+  .site-header:not(.site-header-over-hero) a.brand,
+  .site-header-over-hero.is-solid a.brand {
+    color: var(--color-text);
+  }
+
+  .site-header a.brand > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bottom-nav {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    height: var(--bottom-safe);
+    padding: 0.3rem 0.25rem env(safe-area-inset-bottom);
+    background: rgba(255, 252, 247, 0.97);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -6px 24px rgba(18, 18, 18, 0.06);
+  }
+
+  .bottom-nav a,
+  .bottom-nav button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .bottom-nav-icon {
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 1.95rem;
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+  }
+
+  .bottom-nav .is-active {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  /* Indicador de seccion activa al estilo Material 3. */
+  .bottom-nav .is-active .bottom-nav-icon {
+    background: rgba(190, 175, 135, 0.42);
+  }
+
+  .bottom-nav-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Todo lo fijo abajo se apila sobre la barra inferior. */
+  .whatsapp-fab {
+    bottom: calc(var(--bottom-safe) + 0.85rem);
+    right: 0.9rem;
+  }
+
+  .detail-mobile-cta {
+    bottom: var(--bottom-safe);
+    padding: 0.7rem 1rem;
+    box-shadow: 0 -6px 20px rgba(18, 18, 18, 0.06);
+  }
+
+  .pwa-banner {
+    bottom: calc(var(--bottom-safe) + 0.55rem) !important;
+  }
+
+  body:has(.pwa-banner) .whatsapp-fab {
+    bottom: calc(var(--bottom-safe) + 11rem);
+  }
+
+  main.page {
+    padding-bottom: 2rem;
+  }
+
+  .page-detail {
+    padding-bottom: 5.5rem;
+  }
+
+  /* Controles a tamano de dedo; 16px evita el zoom automatico de iOS. */
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 16px;
+  }
+
+  .field label {
+    font-size: 0.8rem;
+    height: auto;
+  }
+
+  .btn {
+    padding: 0 1rem;
+    font-size: 0.9rem;
+  }
+
+  .op-pills button {
+    flex: 1 1 0;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Portada compacta: titulo, buscador y enseguida el catalogo. */
+  .catalog-hero {
+    padding: calc(4.6rem + env(safe-area-inset-top)) 1rem 1.1rem;
+  }
+
+  .catalog-hero .eyebrow {
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+  }
+
+  .catalog-hero h1 {
+    font-size: 1.95rem;
+    line-height: 1.04;
+    margin-bottom: 0.4rem;
+  }
+
+  .hero-lead {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .trust-strip {
+    display: none;
+  }
+
+  .filters-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 0.6rem;
+    padding: 0.75rem;
+    border-radius: 16px;
+  }
+
+  .filters-bar .op-pills {
+    grid-column: 1 / -1;
+  }
+
+  .filters-bar .field-search {
+    min-width: 0;
+  }
+
+  .filters-bar .field-search label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .filters-bar .field-search input {
+    padding-left: 2.4rem;
+    border-radius: 999px;
+    background: #fff
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18'%3E%3Cpath d='M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM20 20l-4.8-4.8' fill='none' stroke='%23746649' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")
+      no-repeat 0.85rem center;
+  }
+
+  .filters-sheet-toggle {
+    display: inline-flex;
+    border-radius: 999px;
+  }
+
+  .filters-more {
+    display: none;
+  }
+
+  .filters-sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(18, 18, 18, 0.45);
+    animation: fade-in 0.18s ease-out;
+  }
+
+  .filters-more.is-open {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 61;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 1rem 1rem 0;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.2);
+    animation: sheet-up 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .filters-more.is-open .field,
+  .filters-more.is-open .filters-bar-actions {
+    min-width: 0;
+    flex: none;
+  }
+
+  .filters-more.is-open .filters-advanced {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .filters-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .filters-more .filters-actions-label {
+    display: none;
+  }
+
+  .filters-sheet-foot {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    margin: 0.25rem -1rem 0;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .filters-sheet-foot .btn {
+    width: 100%;
+    height: 3rem;
+    font-size: 1rem;
+  }
+
+  /* Tablas del panel como tarjetas apiladas (sin scroll horizontal). */
+  .admin-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: none;
+  }
+
+  .admin-table,
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tr {
+    margin-bottom: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+  }
+
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0;
+    border: 0;
+    text-align: right;
+  }
+
+  .admin-table td[data-label]::before {
+    content: attr(data-label);
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .admin-table td.admin-cell-title {
+    display: block;
+    padding-bottom: 0.45rem;
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .admin-table td.admin-cell-actions {
+    display: block;
+    padding-top: 0.6rem;
+    text-align: left;
+  }
+
+  .admin-table .admin-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  /* Tarjetas del catalogo con esquinas de app. */
+  .property-card {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* Barra del catalogo en dos lineas cortas: titulo y, debajo, orden + Lista/Mapa. */
+  .catalog-results {
+    padding-top: 1.25rem;
+  }
+
+  .catalog-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .catalog-toolbar .eyebrow {
+    display: none;
+  }
+
+  .catalog-toolbar h2 {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .catalog-toolbar-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .sort-field > span,
+  .catalog-view-toggle::before {
+    display: none;
+  }
+
+  .sort-field select {
+    width: 100%;
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+
+  .catalog-view-toggle-row {
+    display: flex;
+    padding: 0.2rem;
+    gap: 0.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+  }
+
+  .catalog-view-toggle-row .btn {
+    height: calc(var(--control-height) - 0.4rem);
+    min-height: 0;
+    border: 0;
+    border-radius: 999px;
+  }
+
+  .catalog-view-toggle-row .btn-secondary {
+    background: transparent;
+  }
+}

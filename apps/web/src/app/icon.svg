@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ValleCaro">
-  <rect width="64" height="64" rx="32" fill="#BEAF87"/>
-  <text x="32" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#121212">VA</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 512 512" role="img" aria-label="LVG">
+  <rect width="512" height="512" rx="116" fill="#121212"/>
+  <rect x="34" y="34" width="444" height="444" rx="88" fill="none" stroke="#BEAF87" stroke-opacity="0.45" stroke-width="5"/>
+  <g transform="translate(-6 0)">
+  <path d="M100 168 V344 H170 M194 168 L240 344 L286 168 M411.6 199.4 A53 88 0 1 0 424 276 V260 H378" fill="none" stroke="#BEAF87" stroke-width="28" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="2.5"/>
+  <rect x="100" y="384" width="324" height="6" fill="#BEAF87" fill-opacity="0.7"/>
+  </g>
 </svg>
