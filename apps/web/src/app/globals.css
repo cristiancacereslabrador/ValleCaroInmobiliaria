@@ -53,6 +53,20 @@ h2,
 
 a {
   color: inherit;
+  text-decoration: none;
+}
+
+/* Sin subrayado: los enlaces dentro de un texto se distinguen por color. */
+p a:not([class]),
+li a:not([class]),
+td a:not([class]) {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+a:not([class]):hover {
+  color: var(--color-accent);
+  opacity: 0.85;
 }
 
 .site-header {
@@ -2139,27 +2153,44 @@ main.page {
   margin: 0.85rem 0 0;
 }
 
+/* Cada red con su color oficial (icono blanco sobre el color de la marca). */
 .social-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-control);
-  border: 1px solid #beaf87;
-  background: transparent;
-  color: #beaf87;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  color: #fff;
   text-decoration: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .social-links a:hover {
-  background: #beaf87;
-  color: #121212;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
 }
 
-.site-footer .social-links a {
-  border-color: #beaf87;
-  color: #beaf87;
+.social-links svg {
+  width: 20px;
+  height: 20px;
+}
+
+.social-links .social-instagram {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+}
+
+.social-links .social-facebook {
+  background: #1877f2;
+}
+
+.social-links .social-tiktok {
+  background: #000;
+}
+
+.social-links .social-whatsapp {
+  background: #25d366;
 }
 
 .contact-card .social-links {

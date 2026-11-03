@@ -22,13 +22,16 @@ function FacebookIcon() {
   );
 }
 
+const TIKTOK_PATH =
+  'M14.2 3.2h2.2c.2 1.8 1.3 3.4 3.1 4.2v2.3c-1.1 0-2.1-.3-3.1-.9v6.2c0 3.2-2.6 5.8-5.9 5.8S4.6 18.2 4.6 15c0-3.2 2.6-5.8 5.9-5.8.3 0 .6 0 .9.1v2.5c-.3-.1-.6-.2-.9-.2-1.8 0-3.3 1.5-3.3 3.4s1.5 3.4 3.3 3.4 3.3-1.5 3.3-3.4V3.2z';
+
+/** La nota de TikTok con su sombra cian y roja, como el logo oficial. */
 function TikTokIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M14.2 3.2h2.2c.2 1.8 1.3 3.4 3.1 4.2v2.3c-1.1 0-2.1-.3-3.1-.9v6.2c0 3.2-2.6 5.8-5.9 5.8S4.6 18.2 4.6 15c0-3.2 2.6-5.8 5.9-5.8.3 0 .6 0 .9.1v2.5c-.3-.1-.6-.2-.9-.2-1.8 0-3.3 1.5-3.3 3.4s1.5 3.4 3.3 3.4 3.3-1.5 3.3-3.4V3.2z"
-      />
+      <path fill="#25F4EE" d={TIKTOK_PATH} transform="translate(-0.7 -0.7)" />
+      <path fill="#FE2C55" d={TIKTOK_PATH} transform="translate(0.7 0.7)" />
+      <path fill="#fff" d={TIKTOK_PATH} />
     </svg>
   );
 }
@@ -97,7 +100,15 @@ export function SocialLinks({
   return (
     <nav className="social-links" aria-label="Redes sociales">
       {items.map((item) => (
-        <a key={item.key} href={item.href} target="_blank" rel="noreferrer" aria-label={item.label} title={item.label}>
+        <a
+          key={item.key}
+          href={item.href}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={item.label}
+          title={item.label}
+          className={`social-${item.key}`}
+        >
           {item.icon}
         </a>
       ))}
