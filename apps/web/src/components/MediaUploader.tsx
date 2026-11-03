@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { uploadMedia } from '../lib/api/media';
+import {
+  RESUMABLE_UPLOAD_MIN_BYTES,
+  uploadMedia,
+  uploadMediaResumable,
+} from '../lib/api/media';
+import { useScreenWakeLock } from '../lib/useScreenWakeLock';
 import { ApiError } from '../lib/api/client';
 import type { PropertyMedia } from '../lib/api/types';
 import { prepareMediaFile } from '../lib/prepareMediaUpload';
@@ -66,11 +71,16 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
   const [isTour360, setIsTour360] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [isDraining, setIsDraining] = useState(false);
   const accept = showCamera ? MOBILE_ACCEPT : DESKTOP_ACCEPT;
+  // Que la pantalla no se apague sola mientras sube: al apagarse, el
+  // telefono congela la pagina y corta la subida.
+  const keepsScreenOn = useScreenWakeLock(isDraining);
 
   const drainQueue = useCallback(async () => {
     if (runningRef.current) return;
     runningRef.current = true;
+    setIsDraining(true);
     setIsUploading(true);
     setError(null);
 
@@ -87,7 +97,9 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
         for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
           try {
             const prepared = await prepareMediaFile(item.file);
-            const media = await uploadMedia(
+            const upload =
+              prepared.size >= RESUMABLE_UPLOAD_MIN_BYTES ? uploadMediaResumable : uploadMedia;
+            const media = await upload(
               propertyId,
               prepared,
               item.tour360 ? 'tour360' : undefined,
@@ -116,6 +128,7 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
       }
     } finally {
       runningRef.current = false;
+      setIsDraining(false);
       setIsUploading(queueRef.current.length > 0 && document.visibilityState === 'visible');
       if (queueRef.current.length === 0) {
         setIsUploading(false);
@@ -262,6 +275,13 @@ export function MediaUploader({ propertyId, onUploaded }: MediaUploaderProps) {
         <div className="upload-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
           <span style={{ width: `${progress}%` }} />
         </div>
+      )}
+      {isDraining && (
+        <p className="page-subtitle">
+          {keepsScreenOn
+            ? 'La pantalla se mantiene encendida mientras sube. No la bloquees con el botón.'
+            : 'No bloquees la pantalla hasta que termine. Si se corta, al volver sigue donde se quedó.'}
+        </p>
       )}
       {error && (
         <div className="alert alert-error">

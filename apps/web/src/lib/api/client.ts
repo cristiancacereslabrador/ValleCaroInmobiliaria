@@ -105,26 +105,38 @@ export async function apiFetch<T>(path: string, options: JsonRequestOptions = {}
 
 export interface UploadRequestOptions {
   onProgress?: (percent: number) => void;
+  /** Bytes enviados de esta peticion (para sumar el progreso de varios trozos). */
+  onBytes?: (loaded: number) => void;
+  method?: 'POST' | 'PUT';
+  timeoutMs?: number;
 }
 
 const UPLOAD_TIMEOUT_MS = 30 * 60 * 1000;
 const NETWORK_UPLOAD_ERROR =
   'Se cortó la conexión al subir. Al volver a esta pantalla se reintenta. Si estás en WhatsApp, ábrelo en el navegador o instala la app.';
 
-/** Subida multipart/form-data (property-media). No fija Content-Type: el navegador añade el boundary. */
+/**
+ * Subida con XMLHttpRequest (fetch no informa del progreso de subida).
+ * Con FormData no fija Content-Type: el navegador añade el boundary; un Blob
+ * se manda en bruto como application/octet-stream (trozos de subida reanudable).
+ */
 export async function apiUpload<T>(
   path: string,
-  form: FormData,
+  body: FormData | Blob,
   options: UploadRequestOptions = {},
 ): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${getApiBaseUrl()}${path}`);
+    xhr.open(options.method ?? 'POST', `${getApiBaseUrl()}${path}`);
     xhr.withCredentials = true;
-    xhr.timeout = UPLOAD_TIMEOUT_MS;
+    xhr.timeout = options.timeoutMs ?? UPLOAD_TIMEOUT_MS;
     xhr.responseType = 'text';
+    if (!(body instanceof FormData)) {
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+    }
 
     xhr.upload.onprogress = (event) => {
+      options.onBytes?.(event.loaded);
       if (event.lengthComputable && options.onProgress) {
         options.onProgress(Math.round((event.loaded / event.total) * 100));
       }
@@ -159,6 +171,6 @@ export async function apiUpload<T>(
       reject(new Error(NETWORK_UPLOAD_ERROR));
     };
 
-    xhr.send(form);
+    xhr.send(body);
   });
 }
