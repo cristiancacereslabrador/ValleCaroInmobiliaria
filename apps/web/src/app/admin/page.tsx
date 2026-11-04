@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminGuard } from '../../components/AdminGuard';
-import { listAdminProperties, updatePropertyStatus } from '../../lib/api/properties';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { deleteProperty, listAdminProperties, updatePropertyStatus } from '../../lib/api/properties';
 import { ListingStatus, type Property } from '../../lib/api/types';
 import { ApiError } from '../../lib/api/client';
 import {
@@ -26,6 +27,9 @@ function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<Property | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function reload() {
     setIsLoading(true);
@@ -54,6 +58,25 @@ function AdminDashboard() {
       setPendingId(null);
     }
   }
+
+  async function handleDelete() {
+    if (!toDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteProperty(toDelete.id);
+      setProperties((prev) => prev.filter((item) => item.id !== toDelete.id));
+      setToDelete(null);
+    } catch (err) {
+      setDeleteError(err instanceof ApiError ? err.message : 'No se pudo eliminar la propiedad.');
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const toDeleteTitle = toDelete
+    ? toDelete.title?.trim() || propertyTypeLabel(toDelete.type)
+    : '';
 
   return (
     <main className="page">
@@ -134,6 +157,17 @@ function AdminDashboard() {
                         >
                           Editar
                         </Link>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          disabled={busy}
+                          onClick={() => {
+                            setDeleteError(null);
+                            setToDelete(property);
+                          }}
+                        >
+                          Eliminar
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -143,6 +177,20 @@ function AdminDashboard() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={toDelete !== null}
+        title="¿Eliminar esta propiedad?"
+        busy={isDeleting}
+        onConfirm={handleDelete}
+        onCancel={() => setToDelete(null)}
+      >
+        <p>
+          Se borrará <strong>{toDeleteTitle}</strong> con todas sus fotos y videos. Esta acción no se
+          puede deshacer.
+        </p>
+        {deleteError && <div className="alert alert-error">{deleteError}</div>}
+      </ConfirmDialog>
     </main>
   );
 }

@@ -552,3 +552,214 @@ body.has-sheet-open {
     background: transparent;
   }
 }
+
+/* ------------------------------------------------------------------
+   Cuadro de confirmacion propio (ConfirmDialog): tarjeta centrada en
+   escritorio y hoja inferior en el celular.
+   ------------------------------------------------------------------ */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(18, 18, 18, 0.5);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: fade-in 0.18s ease-out;
+}
+
+@keyframes confirm-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.confirm-dialog {
+  width: min(26rem, 100%);
+  padding: 1.6rem 1.5rem 1.3rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(18, 18, 18, 0.3);
+  text-align: center;
+  animation: confirm-pop 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.confirm-dialog-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-bottom: 0.8rem;
+  border-radius: 999px;
+  background: rgba(190, 175, 135, 0.3);
+  color: var(--color-accent);
+}
+
+.confirm-dialog.is-danger .confirm-dialog-icon {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.confirm-dialog h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+
+.confirm-dialog-body {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.confirm-dialog-body p {
+  margin: 0 0 0.6rem;
+}
+
+.confirm-dialog-body .alert {
+  text-align: left;
+}
+
+.confirm-dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+.confirm-dialog-actions .btn {
+  width: 100%;
+  height: 2.75rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .confirm-backdrop {
+    place-items: end stretch;
+    padding: 0;
+  }
+
+  .confirm-dialog {
+    width: 100%;
+    padding: 0.6rem 1.25rem calc(1.2rem + env(safe-area-inset-bottom));
+    border-radius: 22px 22px 0 0;
+    animation: sheet-up 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .confirm-dialog::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 0.28rem;
+    margin: 0.2rem auto 1rem;
+    border-radius: 999px;
+    background: var(--color-border);
+  }
+
+  .confirm-dialog-actions {
+    grid-template-columns: 1fr;
+  }
+
+  /* En el celular la accion principal va arriba, al alcance del pulgar. */
+  .confirm-dialog-actions .btn-secondary {
+    order: 2;
+  }
+
+  .confirm-dialog-actions .btn {
+    height: 3rem;
+    font-size: 1rem;
+  }
+}
+
+/* Barra de administrador junto al titulo de la propiedad. En escritorio los
+   botones ya estan en el lateral; en el celular el lateral queda al final. */
+.detail-admin-bar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .detail-admin-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.2rem 0 1.1rem;
+    padding: 0.7rem;
+    border: 1px dashed var(--color-border);
+    border-radius: 14px;
+    background: var(--color-surface);
+  }
+
+  .detail-admin-bar .btn {
+    flex: 1 1 0;
+    border-radius: 999px;
+  }
+}
+
+/* Videos dentro del carrusel de la propiedad. */
+.photo-carousel-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #121212;
+}
+
+.photo-carousel-hero .photo-carousel-video {
+  min-height: inherit;
+  height: inherit;
+}
+
+/* Sin degradado ni puntos encima de los controles del video. */
+.photo-carousel.is-video::after,
+.photo-carousel.is-video .photo-carousel-dots {
+  display: none;
+}
+
+.photo-carousel.is-video .photo-carousel-count {
+  top: 0.8rem;
+  bottom: auto;
+}
+
+.photo-filmstrip button {
+  position: relative;
+}
+
+.photo-filmstrip video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.photo-filmstrip button.is-video::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 18, 18, 0.28)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='22' height='22'%3E%3Ccircle cx='12' cy='12' r='11' fill='rgba(18,18,18,.55)'/%3E%3Cpath d='M10 8l6 4-6 4z' fill='%23fff'/%3E%3C/svg%3E")
+    no-repeat center;
+}
+
+.lightbox video {
+  max-width: min(92vw, 1400px);
+  max-height: 82vh;
+  border-radius: var(--radius-sm);
+  background: #000;
+}
+
+/* Texto blanco en los botones de borrar (negro sobre rojo se leia mal). */
+.btn.btn-danger,
+.btn.btn-danger:hover {
+  color: #fff;
+}

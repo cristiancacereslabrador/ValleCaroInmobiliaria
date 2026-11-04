@@ -32,6 +32,20 @@ import { SimilarPropertiesSection } from '../../../components/SimilarPropertiesS
 import { LeadForm } from '../../../components/LeadForm';
 import { WhatsAppCta } from '../../../components/WhatsAppCta';
 import { PhotoCarousel } from '../../../components/PhotoCarousel';
+import { ConfirmDialog } from '../../../components/ConfirmDialog';
+
+/**
+ * Orden del carrusel: portada, luego los videos (para que se vean pronto) y
+ * despues el resto de fotos por posicion.
+ */
+function orderGallery(media: PropertyMedia[]): PropertyMedia[] {
+  const byPosition = (a: PropertyMedia, b: PropertyMedia) => a.position - b.position;
+  const photos = media.filter((item) => item.type === MediaType.PHOTO).sort(byPosition);
+  const videos = media.filter((item) => item.type === MediaType.VIDEO).sort(byPosition);
+  const coverIndex = photos.findIndex((item) => item.isCover);
+  const cover = coverIndex >= 0 ? photos.splice(coverIndex, 1) : photos.splice(0, 1);
+  return [...cover, ...videos, ...photos];
+}
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -42,6 +56,8 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [pageUrl, setPageUrl] = useState('');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -90,10 +106,13 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
     setPageUrl(window.location.href);
   }, [params.id]);
 
-  const galleryPhotoCount = media.filter((item) => item.type === MediaType.PHOTO).length;
+  const galleryItems = orderGallery(media);
+  const galleryPhotoCount = galleryItems.length;
+  const lightboxIsVideo =
+    lightboxIndex !== null && galleryItems[lightboxIndex]?.type === MediaType.VIDEO;
 
   useEffect(() => {
-    if (lightboxIndex === null || galleryPhotoCount < 2 || lightboxPaused) return;
+    if (lightboxIndex === null || galleryPhotoCount < 2 || lightboxPaused || lightboxIsVideo) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return;
     }
@@ -101,7 +120,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
       setLightboxIndex((index) => (index === null ? 0 : (index + 1) % galleryPhotoCount));
     }, 5000);
     return () => window.clearInterval(timer);
-  }, [lightboxIndex, galleryPhotoCount, lightboxPaused]);
+  }, [lightboxIndex, galleryPhotoCount, lightboxPaused, lightboxIsVideo]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -130,22 +149,28 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   }, [lightboxIndex]);
 
   useEffect(() => {
-    const active = filmstripRef.current?.querySelector<HTMLElement>('.is-on');
-    active?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    // Solo se mueve la tira en horizontal: `scrollIntoView` desplazaba tambien
+    // la pagina y, con el carrusel automatico, la devolvia arriba cada 5 s.
+    const strip = filmstripRef.current;
+    const active = strip?.querySelector<HTMLElement>('.is-on');
+    if (!strip || !active) return;
+    const stripBox = strip.getBoundingClientRect();
+    const activeBox = active.getBoundingClientRect();
+    const left =
+      strip.scrollLeft + (activeBox.left - stripBox.left) - (stripBox.width - activeBox.width) / 2;
+    strip.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
   }, [photoIndex]);
 
   async function handleDelete() {
     if (!property) return;
-    if (!window.confirm('¿Seguro que quieres eliminar esta propiedad? Esta acción no se puede deshacer.')) {
-      return;
-    }
+    setDeleteError(null);
     setIsDeleting(true);
     try {
       await deleteProperty(property.id);
       router.push('/admin');
       router.refresh();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No se pudo eliminar la propiedad.');
+      setDeleteError(err instanceof ApiError ? err.message : 'No se pudo eliminar la propiedad.');
       setIsDeleting(false);
     }
   }
@@ -172,16 +197,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   const heading = property.title?.trim() || propertyTypeLabel(property.type);
   const location = formatPropertyLocation(property);
   const whatsapp = settings?.whatsapp?.trim() || '';
-  const publicPhotos = media.filter(
-    (item) => item.type === MediaType.PHOTO || item.type === MediaType.VIDEO,
-  );
-  const galleryPhotos = publicPhotos
-    .filter((item) => item.type === MediaType.PHOTO)
-    .slice()
-    .sort((a, b) => {
-      if (a.isCover !== b.isCover) return a.isCover ? -1 : 1;
-      return a.position - b.position;
-    });
+  const galleryPhotos = galleryItems;
   const isPublished = property.listingStatus === ListingStatus.PUBLISHED;
   const whatsappText = `Hola, me interesa ${heading}${pageUrl ? ` (${pageUrl})` : ''}`;
   const pricePerM2 = formatPricePerM2(property.price, property.surfaceM2);
@@ -221,11 +237,19 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
         <div className="detail-gallery">
           <PhotoCarousel
             variant="hero"
-            images={galleryPhotos.map((item, i) => ({
-              src: resolveImageUrl(item.url, 1080),
-              srcSet: imageSrcSet(item.url, [640, 1080, 1600]),
-              alt: `${heading}, foto ${i + 1}`,
-            }))}
+            images={galleryPhotos.map((item, i) =>
+              item.type === MediaType.VIDEO
+                ? {
+                    src: resolveMediaUrl(item.url),
+                    videoSrc: resolveMediaUrl(item.url),
+                    alt: `${heading}, video`,
+                  }
+                : {
+                    src: resolveImageUrl(item.url, 1080),
+                    srcSet: imageSrcSet(item.url, [640, 1080, 1600]),
+                    alt: `${heading}, foto ${i + 1}`,
+                  },
+            )}
             sizes="100vw"
             index={photoIndex}
             onIndexChange={setPhotoIndex}
@@ -238,16 +262,22 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                 <button
                   key={item.id}
                   type="button"
-                  className={i === photoIndex ? 'is-on' : undefined}
+                  className={[i === photoIndex ? 'is-on' : '', item.type === MediaType.VIDEO ? 'is-video' : '']
+                    .filter(Boolean)
+                    .join(' ') || undefined}
                   onClick={() => setPhotoIndex(i)}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={resolveImageUrl(item.url, 320)}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  {item.type === MediaType.VIDEO ? (
+                    <video src={`${resolveMediaUrl(item.url)}#t=0.5`} muted playsInline preload="metadata" />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={resolveImageUrl(item.url, 320)}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                 </button>
               ))}
             </div>
@@ -301,11 +331,21 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               </svg>
             </button>
           )}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={resolveImageUrl(galleryPhotos[lightboxIndex].url, 1600)}
-            alt={`${heading}, foto ${lightboxIndex + 1} de ${galleryPhotos.length}`}
-          />
+          {galleryPhotos[lightboxIndex].type === MediaType.VIDEO ? (
+            <video
+              key={galleryPhotos[lightboxIndex].id}
+              src={resolveMediaUrl(galleryPhotos[lightboxIndex].url)}
+              controls
+              autoPlay
+              playsInline
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={resolveImageUrl(galleryPhotos[lightboxIndex].url, 1600)}
+              alt={`${heading}, foto ${lightboxIndex + 1} de ${galleryPhotos.length}`}
+            />
+          )}
           {galleryPhotos.length > 1 && (
             <button
               type="button"
@@ -347,6 +387,16 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           <h1>{heading}</h1>
           {location && <p className="detail-location">{location}</p>}
           {property.address && <p className="detail-address">{property.address}</p>}
+          {isStaff && (
+            <div className="detail-admin-bar">
+              <Link href={`/admin/propiedades/${property.id}/editar`} className="btn btn-secondary">
+                Editar
+              </Link>
+              <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
+                Eliminar propiedad
+              </button>
+            </div>
+          )}
 
           {coreSpecs.length > 0 && (
             <dl className="spec-highlights">
@@ -386,27 +436,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               <MediaUploader propertyId={property.id} onUploaded={(item) => setMedia((prev) => [...prev, item])} />
               <MediaGallery propertyId={property.id} media={media} onChange={setMedia} />
             </div>
-          ) : (
-            publicPhotos.some((item) => item.type === MediaType.VIDEO) && (
-              <div className="section">
-                <h2>Videos</h2>
-                <div className="media-gallery">
-                  {publicPhotos
-                    .filter((item) => item.type === MediaType.VIDEO)
-                    .map((item) => (
-                      <div key={item.id} className="media-item">
-                        <video
-                          src={resolveMediaUrl(item.url)}
-                          controls
-                          playsInline
-                          preload="metadata"
-                        />
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )
-          )}
+          ) : null}
 
           <PropertyTours propertyId={property.id} media={media} onChange={setMedia} canManage={isStaff} />
           <NearbyServicesSection propertyId={property.id} />
@@ -430,8 +460,8 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                 <Link href={`/admin/propiedades/${property.id}/editar`} className="btn btn-secondary">
                   Editar
                 </Link>
-                <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={isDeleting}>
-                  {isDeleting ? 'Eliminando…' : 'Eliminar'}
+                <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
+                  Eliminar
                 </button>
               </>
             )}
@@ -466,6 +496,22 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           </WhatsAppCta>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmDelete}
+        title="¿Eliminar esta propiedad?"
+        busy={isDeleting}
+        onConfirm={handleDelete}
+        onCancel={() => {
+          setConfirmDelete(false);
+          setDeleteError(null);
+        }}
+      >
+        <p>
+          Se borrará <strong>{heading}</strong> con todas sus fotos y videos. Esta acción no se puede
+          deshacer.
+        </p>
+        {deleteError && <div className="alert alert-error">{deleteError}</div>}
+      </ConfirmDialog>
     </main>
   );
 }

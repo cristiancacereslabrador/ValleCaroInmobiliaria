@@ -5,6 +5,7 @@ import { MediaType, type PropertyMedia } from '../lib/api/types';
 import { deleteMedia, markCoverPhoto } from '../lib/api/media';
 import { ApiError } from '../lib/api/client';
 import { resolveImageUrl, resolveMediaUrl } from '../lib/config';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface MediaGalleryProps {
   propertyId: string;
@@ -25,6 +26,7 @@ interface MediaGalleryProps {
 export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps) {
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<PropertyMedia | null>(null);
   const photosAndVideos = media.filter(
     (item) => item.type === MediaType.PHOTO || item.type === MediaType.VIDEO,
   );
@@ -56,6 +58,7 @@ export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps)
     try {
       await deleteMedia(propertyId, mediaId);
       onChange(media.filter((item) => item.id !== mediaId));
+      setToDelete(null);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'No se pudo eliminar el archivo.');
     } finally {
@@ -96,7 +99,7 @@ export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps)
                   type="button"
                   className="btn btn-danger"
                   disabled={pendingId === item.id}
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => setToDelete(item)}
                 >
                   Eliminar
                 </button>
@@ -105,6 +108,16 @@ export function MediaGallery({ propertyId, media, onChange }: MediaGalleryProps)
           </div>
         ))}
       </div>
+      <ConfirmDialog
+        open={toDelete !== null}
+        title={toDelete?.type === MediaType.VIDEO ? '¿Eliminar este video?' : '¿Eliminar esta foto?'}
+        busy={toDelete !== null && pendingId === toDelete.id}
+        onConfirm={() => toDelete && handleDelete(toDelete.id)}
+        onCancel={() => setToDelete(null)}
+      >
+        <p>Se quitará de la propiedad y no se puede deshacer.</p>
+        {error && <div className="alert alert-error">{error}</div>}
+      </ConfirmDialog>
     </div>
   );
 }

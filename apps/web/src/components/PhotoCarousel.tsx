@@ -7,6 +7,8 @@ export interface CarouselImage {
   src: string;
   alt: string;
   srcSet?: string;
+  /** Si viene, la diapositiva es un video (se reproduce dentro del carrusel). */
+  videoSrc?: string;
 }
 
 function Chevron({ dir }: { dir: 'prev' | 'next' }) {
@@ -56,7 +58,9 @@ export function PhotoCarousel({
   const firstDelay = useRef(true);
   const current = index ?? internal;
   const canSlide = images.length > 1;
-  const isPaused = paused || hovering;
+  const currentIsVideo = Boolean(images[current]?.videoSrc);
+  // Un video no se salta solo: el carrusel espera a que la persona lo vea.
+  const isPaused = paused || hovering || currentIsVideo;
   // Solo se descargan la foto visible y sus vecinas (y las ya vistas): antes
   // cada tarjeta del catalogo bajaba todas sus fotos al abrir la pagina.
   const [seen, setSeen] = useState<Set<number>>(() => new Set([current]));
@@ -100,11 +104,13 @@ export function PhotoCarousel({
   if (images.length === 0) return null;
 
   const slide = images[current] ?? images[0];
-  const showProgress = variant === 'hero' && canSlide && autoplay && !paused;
+  const showProgress = variant === 'hero' && canSlide && autoplay && !paused && !currentIsVideo;
 
   return (
     <div
-      className={`photo-carousel photo-carousel-${variant}${isPaused ? ' is-paused' : ''}`}
+      className={`photo-carousel photo-carousel-${variant}${isPaused ? ' is-paused' : ''}${
+        currentIsVideo ? ' is-video' : ''
+      }`}
       style={{ '--carousel-ms': `${intervalMs}ms` } as CSSProperties}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
@@ -123,9 +129,22 @@ export function PhotoCarousel({
       <div className="photo-carousel-stack">
         {images.map((image, i) => (
           <div key={`${image.src}-${i}`} className={`photo-carousel-layer${i === current ? ' is-on' : ''}`}>
-            {shouldRender(i) && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+            {image.videoSrc ? (
+              // Solo se monta el video visible: al pasar de diapositiva se detiene.
+              i === current && (
+                <video
+                  className="photo-carousel-video"
+                  src={`${image.videoSrc}#t=0.1`}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label={image.alt}
+                />
+              )
+            ) : (
+              shouldRender(i) && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                 src={image.src}
                 srcSet={image.srcSet}
                 sizes={image.srcSet ? sizes : undefined}
@@ -133,6 +152,7 @@ export function PhotoCarousel({
                 loading={variant === 'hero' && i === current ? 'eager' : 'lazy'}
                 decoding="async"
               />
+              )
             )}
           </div>
         ))}
@@ -140,7 +160,7 @@ export function PhotoCarousel({
 
       {href ? (
         <Link href={href} className="photo-carousel-hit" aria-label={slide.alt} />
-      ) : (
+      ) : slide.videoSrc ? null : (
         <button
           type="button"
           className="photo-carousel-hit"
@@ -182,7 +202,7 @@ export function PhotoCarousel({
                 type="button"
                 role="tab"
                 aria-selected={i === current}
-                aria-label={`Foto ${i + 1}`}
+                aria-label={image.videoSrc ? `Video ${i + 1}` : `Foto ${i + 1}`}
                 className={i === current ? 'is-on' : undefined}
                 onClick={(event) => {
                   event.preventDefault();
