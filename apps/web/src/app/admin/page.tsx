@@ -141,16 +141,6 @@ function AdminDashboard() {
                             Pausar
                           </button>
                         )}
-                        {property.listingStatus === ListingStatus.PAUSED && (
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            disabled={busy}
-                            onClick={() => handleStatus(property.id, ListingStatus.DRAFT)}
-                          >
-                            A borrador
-                          </button>
-                        )}
                         <Link
                           href={`/admin/propiedades/${property.id}/editar`}
                           className="btn btn-secondary"

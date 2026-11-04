@@ -294,14 +294,15 @@ export function PropertyForm({ mode, propertyId, initialProperty }: PropertyForm
             value={form.listingStatus}
             onChange={(event) => setField('listingStatus', event.target.value as ListingStatus)}
           >
-            {Object.values(ListingStatus).map((status) => (
+            {/* Solo Publicada o Pausada; Borrador queda solo para fichas antiguas que ya lo tienen. */}
+            {[ListingStatus.PUBLISHED, ListingStatus.PAUSED, ...(form.listingStatus === ListingStatus.DRAFT ? [ListingStatus.DRAFT] : [])].map((status) => (
               <option key={status} value={status}>
                 {listingStatusLabel(status)}
               </option>
             ))}
           </select>
           <span className="field-hint">
-            Borrador y Pausada no salen en el catálogo público. Elige Publicada para que se vea.
+            Pausada la oculta del catálogo sin borrarla. Elige Publicada para que se vea.
           </span>
         </div>
 
